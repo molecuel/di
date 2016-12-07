@@ -4,69 +4,61 @@ import * as _ from 'lodash';
 
 // create a unique, GLOBAL symbol name
 // -----------------------------------
-const injectableKey = Symbol.for('mlcl.di.injectables');
+const singletonKey = Symbol.for('mlcl.di.singletons');
 
-class testclass {
-
+export class Injectable {
+  public injectable: any;
+  public constparams: any;
 }
 
-export di = new testclass();
+@singleton
+export class DiContainer {
+  public injectables: Map<string, Injectable>;
+  public constructor() {
+    this.injectables = new Map();
+  }
+  public getInstance(name: string) {
+    let checkSingleton = getSingleton(name);
+    if(checkSingleton) {
+      return checkSingleton;
+    } else {
+      // init class here and check the constructor deps before
+      let currentInjectable =  this.injectables.get(name);
+      return new currentInjectable.injectable();
+    }
+  }
+  public setInjectable(name: string, injectable: any) {
+    let currentInjectable = new Injectable();
+    currentInjectable.injectable = injectable;
+    this.injectables.set(name, currentInjectable);
+  }
+}
+export let di: DiContainer = getSingleton(DiContainer);
 
 export function injectable(target: any) {
-
-  // check if the global object has this symbol
-  // add it if it does not have the symbol, yet
-  // ------------------------------------------
-  let globalSymbols = Object.getOwnPropertySymbols(global);
-  let hasInjectableKey = (globalSymbols.indexOf(injectableKey) > -1);
-
-  if (!hasInjectableKey) {
-    if(!_.isObject(global[injectableKey])) {
-      global[injectableKey] = {};
-    }
-    if(!_.isObject(global[injectableKey][target.name])) {
-      global[injectableKey][target.name] = target;
-    }
-  }
+  di.setInjectable(target.name, target);
 }
 
-// export function inject(){
-export function inject(target: any, keyName: string) {
-  let types = Reflect.getMetadata('design:paramtypes', target, keyName);
-  if(!keyName) {
-    keyName = 'constructor';
+export function getSingleton(target: any) {
+  if(_.isObject(target)) {
+    return global[singletonKey][target.name];
+  } else if(_.isString(target)) {
+    return global[singletonKey][target];
   }
-  for (let injReq of types) {
-    console.log(injReq.name); // testing
-    console.log(global[injectableKey][injReq.name]);
-  }
-}
-
-/**
- * Should alwas return a instance of the di singleton
- */
-export function getInjectable(target: any) {
-  return global[injectableKey][target.name];
 }
 
 export function singleton(target: any) {
-  injectable(target);
-  let injectableTarget = getInjectable(target);
-
-  // create a unique, global symbol name
-  let singletonKey = Symbol.for('mlcl.di.singletons');
-
   // check if the global object has this symbol
   // add it if it does not have the symbol, yet
-  let globalSymbols = Object.getOwnPropertySymbols(global);
-  let hasSingletonKey = (globalSymbols.indexOf(singletonKey) > -1);
+  let containerSymbols = Object.getOwnPropertySymbols(global);
+  let hasSingletonKey = (containerSymbols.indexOf(singletonKey) > -1);
 
   if (!hasSingletonKey) {
     if(!_.isObject(global[singletonKey])) {
       global[singletonKey] = {};
     }
     if(!_.isObject(global[singletonKey][target.name])) {
-      let singletonInstance = new injectableTarget();
+      let singletonInstance = new target();
       global[singletonKey][target.name] = singletonInstance;
     }
   }

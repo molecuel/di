@@ -36,6 +36,8 @@ describe('decorators', function () {
                 dist_1.injectable,
                 __metadata("design:paramtypes", [])
             ], MySingletonClass);
+            console.log(dist_1.di.injectables);
+            console.log(dist_1.di.getInstance(MySingletonClass.name));
         });
     });
 });
