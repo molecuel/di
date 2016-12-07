@@ -6,20 +6,23 @@ import * as _ from 'lodash';
 // -----------------------------------
 const injectableKey = Symbol.for('mlcl.di.injectables');
 
+let container = {};
+let singletons = new Map();
+
 export function injectable(target: any) {
 
   // check if the global object has this symbol
   // add it if it does not have the symbol, yet
   // ------------------------------------------
-  let globalSymbols = Object.getOwnPropertySymbols(global);
-  let hasInjectableKey = (globalSymbols.indexOf(injectableKey) > -1);
+  let containerSymbols = Object.getOwnPropertySymbols(container);
+  let hasInjectableKey = (containerSymbols.indexOf(injectableKey) > -1);
 
   if (!hasInjectableKey) {
-    if(!_.isObject(global[injectableKey])) {
-      global[injectableKey] = {};
+    if(!_.isObject(container[injectableKey])) {
+      container[injectableKey] = {};
     }
-    if(!_.isObject(global[injectableKey][target.name])) {
-      global[injectableKey][target.name] = target;
+    if(!_.isObject(container[injectableKey][target.name])) {
+      container[injectableKey][target.name] = target;
     }
   }
 }
@@ -32,13 +35,14 @@ export function inject(target: any, keyName: string) {
     keyName = 'constructor';
   }
   for (let injReq of types) {
-    console.log(injReq); // testing
+    // console.log(injReq); // testing
     injectables.push(getInjectable(injReq));
   }
   console.log(injectables); // testing
-  console.log(types); // testing
-  console.log(_.toString(target));
-  console.log(_.toString(target.constructor));
+
+  // console.log(types); // testing
+  // console.log(_.toString(target));
+  // console.log(_.toString(target.constructor));
   // let props: any[] = Array.prototype.slice.call(target);
   // for (let prop of props) { // testing
   //   console.log(_.toString(prop)); // testing
@@ -50,11 +54,27 @@ export function inject(target: any, keyName: string) {
  * Should alwas return a instance of the di singleton
  */
 export function di() {
-
+  let that = this;
+  class diSingletonMantle {
+    diContainer: any;
+    diSingletons: any;
+    contructor() {
+      this.diContainer = that.container;
+      this.diSingletons = that.singletons;
+    }
+    let diExport: diSingletonMantle;
+    if (_.isObject(diExport)) {
+      return diExport;
+    }
+    else {
+      diExport = new diSingletonMantle;
+      return diExport;
+    }
+  }
 }
 
 export function getInjectable(target: any) {
-  return global[injectableKey][target.name];
+  return container[injectableKey][target.name];
 }
 
 export function singleton(target: any) {
@@ -66,16 +86,16 @@ export function singleton(target: any) {
 
   // check if the global object has this symbol
   // add it if it does not have the symbol, yet
-  let globalSymbols = Object.getOwnPropertySymbols(global);
-  let hasSingletonKey = (globalSymbols.indexOf(singletonKey) > -1);
+  let containerSymbols = Object.getOwnPropertySymbols(container);
+  let hasSingletonKey = (containerSymbols.indexOf(singletonKey) > -1);
 
   if (!hasSingletonKey) {
-    if(!_.isObject(global[singletonKey])) {
-      global[singletonKey] = {};
+    if(!_.isObject(container[singletonKey])) {
+      container[singletonKey] = {};
     }
-    if(!_.isObject(global[singletonKey][target.name])) {
+    if(!_.isObject(container[singletonKey][target.name])) {
       let singletonInstance = new injectableTarget();
-      global[singletonKey][target.name] = singletonInstance;
+      container[singletonKey][target.name] = singletonInstance;
     }
   }
   // ensure the API is never changed

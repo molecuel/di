@@ -2,7 +2,7 @@
 import 'reflect-metadata';
 import should = require('should');
 import assert = require('assert');
-import {injectable, inject, singleton, getInjectable} from '../dist';
+import {injectable, inject, singleton, getInjectable, logParam} from '../dist';
 should();
 
 describe('decorators', function() {
@@ -34,12 +34,12 @@ describe('decorators', function() {
       @inject
       class testClass {
 
-        constructor(one: SomeClass, two: MySingletonClass) {
+        constructor(@logParam one: SomeClass, two: MySingletonClass) {
           this.one = one;
           this.two = two;
         }
         
-        deiMudda(one: SomeClass, two: MySingletonClass) {
+        deiMudda(@logParam one: SomeClass, two: MySingletonClass) {
           this.one = one;
           this.two = two;
         }
