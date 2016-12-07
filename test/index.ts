@@ -33,7 +33,13 @@ describe('decorators', function() {
 
       @inject
       class testClass {
+
         constructor(one: SomeClass, two: MySingletonClass) {
+          this.one = one;
+          this.two = two;
+        }
+        
+        deiMudda(one: SomeClass, two: MySingletonClass) {
           this.one = one;
           this.two = two;
         }

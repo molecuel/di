@@ -25,17 +25,17 @@ export function injectable(target: any) {
 }
 
 // export function inject(){
-export function inject(target: any) {
+export function inject(target: any, key, mytest) {
   let injectables: any[] = [];
-  for (let injReq of Reflect.getMetadata('design:paramtypes', target)) {
+  /*for (let injReq of Reflect.getMetadata('design:paramtypes', target)) {
     injectables.push(getInjectable(injReq));
-  }
+  }*/
   // if (new.target) {
   // 
   // }
-  console.log('            '+_.toString(target));
-  console.log(injectables);
-  // }
+  var types = Reflect.getMetadata("design:paramtypes", target, key);
+  var s = types.map(a => a.name).join();
+  console.log(`${key} param types: ${s}`);
 }
 
 /**
