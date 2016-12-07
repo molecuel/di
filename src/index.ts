@@ -2,17 +2,18 @@
 import 'reflect-metadata';
 import * as _ from 'lodash';
 
+// create a unique, GLOBAL symbol name
+// -----------------------------------
+const injectableKey = Symbol.for('mlcl.di.injectables');
+
 export function injectable(target: any) {
-    // create a unique, global symbol name
-  // -----------------------------------
-  let injectableKey = Symbol.for('mlcl.di.injectables');
 
   // check if the global object has this symbol
   // add it if it does not have the symbol, yet
   // ------------------------------------------
   let globalSymbols = Object.getOwnPropertySymbols(global);
   let hasInjectableKey = (globalSymbols.indexOf(injectableKey) > -1);
-  
+
   if (!hasInjectableKey) {
     if(!_.isObject(global[injectableKey])) {
       global[injectableKey] = {};
@@ -23,8 +24,18 @@ export function injectable(target: any) {
   }
 }
 
-export function inject() {
-
+// export function inject(){
+export function inject(target: any) {
+  let injectables: any[] = [];
+  for (let injReq of Reflect.getMetadata('design:paramtypes', target)) {
+    injectables.push(getInjectable(injReq));
+  }
+  // if (new.target) {
+  // 
+  // }
+  console.log('            '+_.toString(target));
+  console.log(injectables);
+  // }
 }
 
 /**
@@ -35,14 +46,13 @@ export function di() {
 }
 
 export function getInjectable(target: any) {
-  let injectableKey = Symbol.for('mlcl.di.injectables');
   return global[injectableKey][target.name];
 }
 
 export function singleton(target: any) {
   injectable(target);
   let injectableTarget = getInjectable(target);
-  
+
   // create a unique, global symbol name
   let singletonKey = Symbol.for('mlcl.di.singletons');
 
