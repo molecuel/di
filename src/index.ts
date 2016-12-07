@@ -25,17 +25,25 @@ export function injectable(target: any) {
 }
 
 // export function inject(){
-export function inject(target: any, key, mytest) {
+export function inject(target: any, keyName: string) {
   let injectables: any[] = [];
-  /*for (let injReq of Reflect.getMetadata('design:paramtypes', target)) {
+  let types = Reflect.getMetadata('design:paramtypes', target, keyName);
+    if(!keyName){
+    keyName = 'constructor';
+  }
+  for (let injReq of types) {
+    console.log(injReq); // testing
     injectables.push(getInjectable(injReq));
-  }*/
-  // if (new.target) {
-  // 
+  }
+  console.log(injectables); // testing
+  console.log(types); // testing
+  console.log(_.toString(target));
+  console.log(_.toString(target.constructor));
+  // let props: any[] = Array.prototype.slice.call(target);
+  // for (let prop of props) { // testing
+  //   console.log(_.toString(prop)); // testing
   // }
-  var types = Reflect.getMetadata("design:paramtypes", target, key);
-  var s = types.map(a => a.name).join();
-  console.log(`${key} param types: ${s}`);
+    
 }
 
 /**

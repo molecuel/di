@@ -8,9 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-require("reflect-metadata");
-const should = require("should");
-const dist_1 = require("../dist");
+require('reflect-metadata');
+const should = require('should');
+const dist_1 = require('../dist');
 should();
 describe('decorators', function () {
     describe('singleton', function () {
@@ -23,8 +23,8 @@ describe('decorators', function () {
                 }
             };
             SomeClass = __decorate([
-                dist_1.injectable,
-                __metadata("design:paramtypes", [])
+                dist_1.injectable, 
+                __metadata('design:paramtypes', [])
             ], SomeClass);
             let MySingletonClass = class MySingletonClass {
                 constructor() {
@@ -33,8 +33,8 @@ describe('decorators', function () {
                 }
             };
             MySingletonClass = __decorate([
-                dist_1.injectable,
-                __metadata("design:paramtypes", [])
+                dist_1.injectable, 
+                __metadata('design:paramtypes', [])
             ], MySingletonClass);
             let testClass = class testClass {
                 constructor(one, two) {
@@ -47,8 +47,8 @@ describe('decorators', function () {
                 }
             };
             testClass = __decorate([
-                dist_1.inject,
-                __metadata("design:paramtypes", [SomeClass, MySingletonClass])
+                dist_1.inject, 
+                __metadata('design:paramtypes', [SomeClass, MySingletonClass])
             ], testClass);
         });
     });
