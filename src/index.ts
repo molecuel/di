@@ -6,6 +6,12 @@ import * as _ from 'lodash';
 // -----------------------------------
 const injectableKey = Symbol.for('mlcl.di.injectables');
 
+class testclass {
+
+}
+
+export di = new testclass();
+
 export function injectable(target: any) {
 
   // check if the global object has this symbol
@@ -26,33 +32,19 @@ export function injectable(target: any) {
 
 // export function inject(){
 export function inject(target: any, keyName: string) {
-  let injectables: any[] = [];
   let types = Reflect.getMetadata('design:paramtypes', target, keyName);
-    if(!keyName){
+  if(!keyName) {
     keyName = 'constructor';
   }
   for (let injReq of types) {
-    console.log(injReq); // testing
-    injectables.push(getInjectable(injReq));
+    console.log(injReq.name); // testing
+    console.log(global[injectableKey][injReq.name]);
   }
-  console.log(injectables); // testing
-  console.log(types); // testing
-  console.log(_.toString(target));
-  console.log(_.toString(target.constructor));
-  // let props: any[] = Array.prototype.slice.call(target);
-  // for (let prop of props) { // testing
-  //   console.log(_.toString(prop)); // testing
-  // }
-    
 }
 
 /**
  * Should alwas return a instance of the di singleton
  */
-export function di() {
-
-}
-
 export function getInjectable(target: any) {
   return global[injectableKey][target.name];
 }
