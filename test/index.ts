@@ -12,17 +12,25 @@ describe('decorators', function() {
 
     it('should mark a class as singleton', function() {
       @injectable
-      class SomeClass {
+      class InnerClass {
         constructor() {
 
+        }
+      }
+
+      @injectable
+      class SomeClass {
+        inside: InnerClass;
+        constructor(inj: InnerClass) {
+          this.inside = inj;
         }
         someMethod(){
           console.log('did something.');
         }
       }
 
-      // @singleton
       @injectable
+      @singleton
       class MySingletonClass {
         prop:any;
         constructor(inj: SomeClass) {

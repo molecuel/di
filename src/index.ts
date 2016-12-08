@@ -59,7 +59,7 @@ export class DiContainer {
       // @todo add the decorator
       let currentInjectable: Injectable =  this.injectables.get(name);
       let injections: any[] = [];
-      for (let parameter of currentInjectable.parameters) {
+      for (let parameter of currentInjectable.constparams) {
         injections.push(this.getInstance(parameter.name));
       }
       if (injections.length) {
@@ -77,8 +77,7 @@ export class DiContainer {
    */
   public setInjectable(name: string, injectable: any) {
     let currentInjectable = new Injectable();
-    let parameterConstructors = Reflect.getMetadata('design:paramtypes', injectable);
-    currentInjectable.parameters = parameterConstructors;
+    currentInjectable.constparams = Reflect.getMetadata('design:paramtypes', injectable);
     currentInjectable.injectable = injectable;
     this.injectables.set(name, currentInjectable);
   }

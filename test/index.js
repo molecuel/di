@@ -15,8 +15,17 @@ should();
 describe('decorators', function () {
     describe('singleton', function () {
         it('should mark a class as singleton', function () {
-            let SomeClass = class SomeClass {
+            let InnerClass = class InnerClass {
                 constructor() {
+                }
+            };
+            InnerClass = __decorate([
+                dist_1.injectable, 
+                __metadata('design:paramtypes', [])
+            ], InnerClass);
+            let SomeClass = class SomeClass {
+                constructor(inj) {
+                    this.inside = inj;
                 }
                 someMethod() {
                     console.log('did something.');
@@ -24,7 +33,7 @@ describe('decorators', function () {
             };
             SomeClass = __decorate([
                 dist_1.injectable, 
-                __metadata('design:paramtypes', [])
+                __metadata('design:paramtypes', [InnerClass])
             ], SomeClass);
             let MySingletonClass = class MySingletonClass {
                 constructor(inj) {
@@ -33,7 +42,8 @@ describe('decorators', function () {
                 }
             };
             MySingletonClass = __decorate([
-                dist_1.injectable, 
+                dist_1.injectable,
+                dist_1.singleton, 
                 __metadata('design:paramtypes', [SomeClass])
             ], MySingletonClass);
             console.log(dist_1.di.injectables);
