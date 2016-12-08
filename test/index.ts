@@ -25,8 +25,8 @@ describe('decorators', function() {
       @injectable
       class MySingletonClass {
         prop:any;
-        constructor() {
-          this.prop = {};
+        constructor(inj: SomeClass) {
+          this.prop = inj || false;
           console.log('new instance');
         }
       }

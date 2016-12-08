@@ -57,7 +57,14 @@ export class DiContainer {
       return checkSingleton;
     } else {
       // @todo add the decorator
-      let currentInjectable =  this.injectables.get(name);
+      let currentInjectable: Injectable =  this.injectables.get(name);
+      let injections: any[] = [];
+      for (let parameter of currentInjectable.parameters) {
+        injections.push(this.getInstance(parameter.name));
+      }
+      if (injections.length) {
+        return new currentInjectable.injectable(...injections);
+      }
       return new currentInjectable.injectable();
     }
   }
@@ -70,6 +77,8 @@ export class DiContainer {
    */
   public setInjectable(name: string, injectable: any) {
     let currentInjectable = new Injectable();
+    let parameterConstructors = Reflect.getMetadata('design:paramtypes', injectable);
+    currentInjectable.parameters = parameterConstructors;
     currentInjectable.injectable = injectable;
     this.injectables.set(name, currentInjectable);
   }
