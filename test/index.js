@@ -8,9 +8,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-require('reflect-metadata');
-const should = require('should');
-const dist_1 = require('../dist');
+require("reflect-metadata");
+const should = require("should");
+const assert = require("assert");
+const dist_1 = require("../dist");
 should();
 describe('decorators', function () {
     describe('singleton', function () {
@@ -20,8 +21,8 @@ describe('decorators', function () {
                 }
             };
             InnerClass = __decorate([
-                dist_1.injectable, 
-                __metadata('design:paramtypes', [])
+                dist_1.injectable,
+                __metadata("design:paramtypes", [])
             ], InnerClass);
             let SomeClass = class SomeClass {
                 constructor(inj) {
@@ -32,8 +33,8 @@ describe('decorators', function () {
                 }
             };
             SomeClass = __decorate([
-                dist_1.injectable, 
-                __metadata('design:paramtypes', [InnerClass])
+                dist_1.injectable,
+                __metadata("design:paramtypes", [InnerClass])
             ], SomeClass);
             let MySingletonClass = class MySingletonClass {
                 constructor(inj) {
@@ -43,13 +44,53 @@ describe('decorators', function () {
             };
             MySingletonClass = __decorate([
                 dist_1.injectable,
-                dist_1.singleton, 
-                __metadata('design:paramtypes', [SomeClass])
+                dist_1.singleton,
+                __metadata("design:paramtypes", [SomeClass])
             ], MySingletonClass);
-            console.log(dist_1.di.injectables);
             let createdSingleton = dist_1.di.getInstance(MySingletonClass.name);
-            console.log(createdSingleton);
             createdSingleton.should.equal(dist_1.di.getInstance(MySingletonClass.name));
+        });
+    });
+    describe('component', function () {
+        let MyComponent = class MyComponent {
+        };
+        MyComponent = __decorate([
+            dist_1.component,
+            __metadata("design:paramtypes", [])
+        ], MyComponent);
+        let Depclass = class Depclass {
+        };
+        Depclass = __decorate([
+            dist_1.injectable,
+            __metadata("design:paramtypes", [])
+        ], Depclass);
+        let DepComponent = class DepComponent {
+            constructor(mycomp, depclass) {
+            }
+        };
+        DepComponent = __decorate([
+            dist_1.component,
+            __metadata("design:paramtypes", [MyComponent, Depclass])
+        ], DepComponent);
+        it('should mark as component', function () {
+            let checkComp = dist_1.di.injectables.get('MyComponent');
+            assert(checkComp instanceof dist_1.Injectable);
+            assert(checkComp.component === true);
+        });
+        it('should calculate dependencies for components', function () {
+            let checkComp = dist_1.di.injectables.get(DepComponent.name);
+            assert(checkComp instanceof dist_1.Injectable);
+            checkComp.component.should.be.equal(true);
+            should.exist(checkComp.constParams);
+            assert(checkComp.constParams.length === 2);
+        });
+        it('should prevent loops in deps', function () {
+            assert(false);
+        });
+        it('should load components', function () {
+            dist_1.di.bootstrap();
+            let checkComp = dist_1.di.injectables.get(DepComponent.name);
+            assert(checkComp.instanceCount > 0);
         });
     });
 });

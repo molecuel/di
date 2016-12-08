@@ -1,8 +1,8 @@
-'use strict'
+'use strict';
 import 'reflect-metadata';
 import should = require('should');
 import assert = require('assert');
-import {di, injectable, singleton} from '../dist';
+import {di, injectable, Injectable, singleton, component} from '../dist';
 should();
 
 describe('decorators', function() {
@@ -32,16 +32,50 @@ describe('decorators', function() {
       @injectable
       @singleton
       class MySingletonClass {
-        prop:any;
+        prop: any;
         constructor(inj: SomeClass) {
           this.prop = inj || false;
           console.log('new instance');
         }
       }
-      console.log(di.injectables);
       let createdSingleton = di.getInstance(MySingletonClass.name);
-      console.log(createdSingleton);
-      createdSingleton.should.equal(di.getInstance(MySingletonClass.name));      
+      createdSingleton.should.equal(di.getInstance(MySingletonClass.name));
     });
   }); // category end
-}) // test end
+  describe('component', function() {
+    @component
+    class MyComponent {}
+
+    @injectable
+    class Depclass {}
+
+    @component
+    class DepComponent {
+      constructor(mycomp: MyComponent, depclass: Depclass) {
+      }
+    }
+
+    it('should mark as component', function() {
+      let checkComp: Injectable = di.injectables.get('MyComponent');
+      assert(checkComp instanceof Injectable);
+      assert(checkComp.component === true);
+    });
+    it('should calculate dependencies for components', function() {
+
+      let checkComp: Injectable = di.injectables.get(DepComponent.name);
+      assert(checkComp instanceof Injectable);
+      checkComp.component.should.be.equal(true);
+      should.exist(checkComp.constParams);
+      assert(checkComp.constParams.length === 2);
+    });
+    it('should prevent loops in deps', function() {
+      assert(false);
+    });
+    it('should load components', function() {
+      di.bootstrap();
+      let checkComp = di.injectables.get(DepComponent.name);
+      assert(checkComp.instanceCount > 0);
+    });
+
+  });
+}); // test end

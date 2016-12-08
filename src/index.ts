@@ -14,13 +14,30 @@ export class Injectable {
   /**
    * @type {*}
    * @memberOf Injectable
+   * @description Constructor of injectable
    */
   public injectable: any;
+
   /**
-   * @type {*}
+   * @type {*[]}
+   * @memberOf Injectable
+   * @description Constructor parameters of injectable
+   */
+  public constParams: any[];
+
+  /**
+   * @type {boolean}
+   * @memberOf Injectable
+   * @description Marks a injectable as component
+   */
+  public component: boolean;
+
+  /**
+   * @description Count of created instances
+   * @type {number}
    * @memberOf Injectable
    */
-  public constparams: any;
+  public instanceCount: number = 0;
 }
 
 
@@ -56,12 +73,12 @@ export class DiContainer {
     if(checkSingleton) {
       return checkSingleton;
     } else {
-      // @todo add the decorator
       let currentInjectable: Injectable =  this.injectables.get(name);
       let injections: any[] = [];
-      for (let parameter of currentInjectable.constparams) {
+      for (let parameter of currentInjectable.constParams) {
         injections.push(this.getInstance(parameter.name));
       }
+      currentInjectable.instanceCount++;
       if (injections.length) {
         return new currentInjectable.injectable(...injections);
       }
@@ -77,9 +94,39 @@ export class DiContainer {
    */
   public setInjectable(name: string, injectable: any) {
     let currentInjectable = new Injectable();
-    currentInjectable.constparams = Reflect.getMetadata('design:paramtypes', injectable);
+    currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable);
     currentInjectable.injectable = injectable;
     this.injectables.set(name, currentInjectable);
+  }
+
+  /**
+   * 
+   * @param {string} name
+   * @param {*} injectable
+   * 
+   * @memberOf DiContainer
+   */
+  public setComponent(name: string, component: any) {
+    let currentComponent = new Injectable();
+    currentComponent.constParams = Reflect.getMetadata('design:paramtypes', component);
+    currentComponent.injectable = component;
+    currentComponent.component = true;
+    this.injectables.set(name, currentComponent);
+  }
+
+  /**
+   * @description Bootstrap DI
+   * @memberOf DiContainer
+   */
+  public bootstrap() {
+      // @todo check dependencies of @component
+
+      // init components
+      for(let [key, component] of this.injectables) {
+        if(component.component) {
+          this.getInstance(key);
+        }
+      }
   }
 }
 export let di: DiContainer = getSingleton(DiContainer);
@@ -128,8 +175,8 @@ export function singleton(target: any): void {
     }
   }
   if(!global[singletonKey][target.name]) {
-    let singletonInstance: any; // = new target();
-    let injections: any[] = [];
+    let singletonInstance: Object; // = new target();
+    let injections: Object[] = [];
     for (let parameter of Reflect.getMetadata('design:paramtypes', target)) {
       injections.push(di.getInstance(parameter.name));
     }
@@ -143,4 +190,8 @@ export function singleton(target: any): void {
   }
   // ensure the API is never changed
   Object.freeze(singleton);
+}
+
+export function component(target: any) {
+  di.setComponent(target.name, target);
 }
