@@ -47,7 +47,9 @@ describe('decorators', function () {
                 __metadata('design:paramtypes', [SomeClass])
             ], MySingletonClass);
             console.log(dist_1.di.injectables);
-            console.log(dist_1.di.getInstance(MySingletonClass.name));
+            let createdSingleton = dist_1.di.getInstance(MySingletonClass.name);
+            console.log(createdSingleton);
+            createdSingleton.should.equal(dist_1.di.getInstance(MySingletonClass.name));
         });
     });
 });

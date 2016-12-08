@@ -39,7 +39,9 @@ describe('decorators', function() {
         }
       }
       console.log(di.injectables);
-      console.log(di.getInstance(MySingletonClass.name));
+      let createdSingleton = di.getInstance(MySingletonClass.name);
+      console.log(createdSingleton);
+      createdSingleton.should.equal(di.getInstance(MySingletonClass.name));      
     });
   }); // category end
 }) // test end
