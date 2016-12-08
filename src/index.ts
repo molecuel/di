@@ -76,7 +76,15 @@ export class DiContainer {
       let currentInjectable: Injectable =  this.injectables.get(name);
       let injections: any[] = [];
       for (let parameter of currentInjectable.constParams) {
-        injections.push(this.getInstance(parameter.name));
+        if(_.includes(['Boolean', 'Number', 'String'], parameter.name)) {
+          // if(parameter()) {
+          //   console.log('pushing parameter');
+          // }
+          injections.push(parameter());
+        }
+        else {
+          injections.push(this.getInstance(parameter.name));
+        }
       }
       currentInjectable.instanceCount++;
       if (injections.length) {

@@ -2,22 +2,62 @@
 import 'reflect-metadata';
 import should = require('should');
 import assert = require('assert');
+import * as _ from 'lodash';
 import {di, injectable, Injectable, singleton, component} from '../dist';
 should();
 
 describe('decorators', function() {
-
+  describe('injection', function() {
+    @injectable
+    class InjectableTestClass {}
+    it('should mark a class as injectable', () => {
+      let checkInjectable = di.injectables.get(InjectableTestClass.name);
+      should.exist(checkInjectable);
+      checkInjectable.should.be.instanceof(Injectable);
+      assert(_.isObject(checkInjectable.injectable));
+    });
+    it('should generate an instance of a marked class', () => {
+      let checkInstance = di.getInstance(InjectableTestClass.name);
+      should.exist(checkInstance);
+      checkInstance.should.be.instanceof(InjectableTestClass);
+    });
+    it('should resolve constructor dependencies of a marked class', () => {
+      @component
+      class InjectTestClass {
+        prop: InjectableTestClass;
+        constructor(dep: InjectableTestClass) {
+          this.prop = dep;
+        }
+      }
+      let checkInstance: InjectTestClass = di.getInstance(InjectTestClass.name);
+      should.exist(checkInstance);
+      checkInstance.should.be.instanceof(InjectTestClass);
+      should.exist(checkInstance.prop);
+      checkInstance.prop.should.be.instanceof(InjectableTestClass);
+    });
+    it('should resolve constructor parameters of built-in types', () => {
+      @component
+      class InjectBuiltInTestClass {
+        prop: any;
+        constructor(value: string) {
+          this.prop = value || false;
+        }
+      }
+      let checkInstance = di.getInstance(InjectBuiltInTestClass.name);
+      checkInstance.should.exist;
+      checkInstance.should.be.instanceof(InjectBuiltInTestClass);
+      checkInstance.prop.should.be.type('string');
+    });
+  }); // category end
 
   describe('singleton', function() {
-
-    it('should mark a class as singleton', function() {
+    it('should mark a class as singleton and only ever return one instance', function() {
       @injectable
       class InnerClass {
         constructor() {
 
         }
       }
-
       @injectable
       class SomeClass {
         inside: InnerClass;
@@ -29,19 +69,18 @@ describe('decorators', function() {
         }
       }
 
-      @injectable
       @singleton
       class MySingletonClass {
         prop: any;
         constructor(inj: SomeClass) {
           this.prop = inj || false;
-          console.log('new instance');
         }
       }
       let createdSingleton = di.getInstance(MySingletonClass.name);
       createdSingleton.should.equal(di.getInstance(MySingletonClass.name));
     });
   }); // category end
+
   describe('component', function() {
     @component
     class MyComponent {}
@@ -76,6 +115,5 @@ describe('decorators', function() {
       let checkComp = di.injectables.get(DepComponent.name);
       assert(checkComp.instanceCount > 0);
     });
-
-  });
+  }); // category end
 }); // test end
