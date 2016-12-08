@@ -119,17 +119,27 @@ export function getSingleton(target: any) {
 export function singleton(target: any): void {
   // check if the global object has this symbol
   // add it if it does not have the symbol, yet
-  let containerSymbols = Object.getOwnPropertySymbols(global);
-  let hasSingletonKey = (containerSymbols.indexOf(singletonKey) > -1);
+  let globalSymbols = Object.getOwnPropertySymbols(global);
+  let hasSingletonKey = (globalSymbols.indexOf(singletonKey) > -1);
 
   if (!hasSingletonKey) {
     if(!_.isObject(global[singletonKey])) {
       global[singletonKey] = {};
     }
-    if(!_.isObject(global[singletonKey][target.name])) {
-      let singletonInstance = new target();
-      global[singletonKey][target.name] = singletonInstance;
+  }
+  if(!global[singletonKey][target.name]) {
+    let singletonInstance: any; // = new target();
+    let injections: any[] = [];
+    for (let parameter of Reflect.getMetadata('design:paramtypes', target)) {
+      injections.push(di.getInstance(parameter.name));
     }
+    if (injections.length) {
+      singletonInstance = new target(...injections);
+    }
+    else {
+      singletonInstance = new target();
+    }
+    global[singletonKey][target.name] = singletonInstance;
   }
   // ensure the API is never changed
   Object.freeze(singleton);
