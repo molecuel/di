@@ -71,6 +71,7 @@ describe('decorators', function () {
                 dist_1.component, 
                 __metadata('design:paramtypes', [String])
             ], InjectBuiltInTestClass);
+            console.log(dist_1.di.injectables);
             let checkInstance = dist_1.di.getInstance(InjectBuiltInTestClass.name);
             checkInstance.should.exist;
             checkInstance.should.be.instanceof(InjectBuiltInTestClass);

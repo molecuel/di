@@ -33,6 +33,13 @@ export class Injectable {
   public component: boolean;
 
   /**
+   * @type {boolean}
+   * @memberOf Injectable
+   * @description Marks a injectable as explicit value
+   */
+  public isValue: boolean;
+
+  /**
    * @description Count of created instances
    * @type {number}
    * @memberOf Injectable
@@ -72,11 +79,20 @@ export class DiContainer {
     let checkSingleton = getSingleton(name);
     if(checkSingleton) {
       return checkSingleton;
-    } else {
+    }
+    else {
       let currentInjectable: Injectable =  this.injectables.get(name);
+      if(!currentInjectable) {
+        return undefined;
+      }
       let injections: any[] = [];
       for (let parameter of currentInjectable.constParams) {
-        injections.push(this.getInstance(parameter.name));
+        if(currentInjectable.isValue) {
+          injections.push(parameter);
+        }
+        else {
+          injections.push(this.getInstance(parameter.name));
+        }
       }
       currentInjectable.instanceCount++;
       if (injections.length) {
@@ -96,12 +112,13 @@ export class DiContainer {
     let currentInjectable = new Injectable();
     if(propertyName) {
       currentInjectable.constParams = injectable[propertyName];
+      currentInjectable.injectable = injectable[propertyName].constructor;
+      currentInjectable.isValue = true;
     }
     else {
       currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable);
+      currentInjectable.injectable = injectable;
     }
-    currentInjectable.injectable = injectable;
-
     this.injectables.set(name, currentInjectable);
   }
 
