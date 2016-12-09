@@ -50,7 +50,6 @@ describe('decorators', function() {
           this.prop = value || false;
         }
       }
-      console.log(di.injectables); // testing
       let checkInstance = di.getInstance(InjectBuiltInTestClass.name);
       checkInstance.should.exist;
       checkInstance.should.be.instanceof(InjectBuiltInTestClass);

@@ -94,6 +94,7 @@ export class DiContainer {
           injections.push(this.getInstance(parameter.name));
         }
       }
+      // @todo: properly inject built-in types
       currentInjectable.instanceCount++;
       if (injections.length) {
         return new currentInjectable.injectable(...injections);
@@ -162,25 +163,11 @@ export let di: DiContainer = getSingleton(DiContainer);
 
 function injectableNameOverride(injectionKey?: string) {
   return function(target: any, propertyName?: string) {
-    // console.log('OVR:TARGET');
-    // console.log(target);
-    // console.log('OVR:NAME');
-    // console.log(target.name);
-    // console.log('OVR:PROPERTY');
-    // console.log(propertyName);
-    // console.log('OVR:KEY');
-    // console.log(injectionKey);
     di.setInjectable(injectionKey || propertyName || target.name, target, propertyName);
   };
 }
 
 function injectableConstructorName(target: any, propertyName?: string) {
-  // console.log('CON:TARGET');
-  // console.log(target);
-  // console.log('CON:NAME');
-  // console.log(target.name);
-  // console.log('CON:PROPERTY');
-  // console.log(propertyName);
   di.setInjectable(propertyName || target.name, target, propertyName);
 }
 
