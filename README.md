@@ -1,6 +1,6 @@
 # Dependency injection for Typescript
 
-mlcl_di is a dependency injection module mainly created for the Molecuel application framework. It's highly inspired by the Spring java framework. The development is focused on simple usage and good code readability.
+mlcl_di is a dependency injection module mainly created for the Molecuel application framework but can be used with any Node project. It's highly inspired by the Spring java framework. The development is focused on simple usage and good code readability.
 
 We also developed an option to define and reuse Singleton instances in your code. We are using the latest features from Typescript, ECMAScript and Reflect Metadata.
 
