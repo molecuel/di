@@ -76,15 +76,7 @@ export class DiContainer {
       let currentInjectable: Injectable =  this.injectables.get(name);
       let injections: any[] = [];
       for (let parameter of currentInjectable.constParams) {
-        if(_.includes(['Boolean', 'Number', 'String'], parameter.name)) {
-          // if(parameter()) {
-          //   console.log('pushing parameter');
-          // }
-          injections.push(parameter());
-        }
-        else {
-          injections.push(this.getInstance(parameter.name));
-        }
+        injections.push(this.getInstance(parameter.name));
       }
       currentInjectable.instanceCount++;
       if (injections.length) {
@@ -100,10 +92,16 @@ export class DiContainer {
    * 
    * @memberOf DiContainer
    */
-  public setInjectable(name: string, injectable: any) {
+  public setInjectable(name: string, injectable: any, propertyName?: string) {
     let currentInjectable = new Injectable();
-    currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable);
+    if(propertyName) {
+      currentInjectable.constParams = injectable[propertyName];
+    }
+    else {
+      currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable);
+    }
     currentInjectable.injectable = injectable;
+
     this.injectables.set(name, currentInjectable);
   }
 
@@ -144,9 +142,41 @@ export let di: DiContainer = getSingleton(DiContainer);
  * @export
  * @param {*} target
  */
-export function injectable(target: any) {
-  di.setInjectable(target.name, target);
+
+function injectableNameOverride(injectionKey?: string) {
+  return function(target: any, propertyName?: string) {
+    // console.log('OVR:TARGET');
+    // console.log(target);
+    // console.log('OVR:NAME');
+    // console.log(target.name);
+    // console.log('OVR:PROPERTY');
+    // console.log(propertyName);
+    // console.log('OVR:KEY');
+    // console.log(injectionKey);
+    di.setInjectable(injectionKey || propertyName || target.name, target, propertyName);
+  };
 }
+
+function injectableConstructorName(target: any, propertyName?: string) {
+  // console.log('CON:TARGET');
+  // console.log(target);
+  // console.log('CON:NAME');
+  // console.log(target.name);
+  // console.log('CON:PROPERTY');
+  // console.log(propertyName);
+  di.setInjectable(propertyName || target.name, target, propertyName);
+}
+
+export function injectable(...args: any[]) {
+  if(args.length === 1 && typeof args[0] === 'string') {
+    return injectableNameOverride(...args);
+  }
+  else {
+    return injectableConstructorName(...args);
+  }
+
+}
+
 
 /**
  * 
