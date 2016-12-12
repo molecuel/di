@@ -36,6 +36,13 @@ describe('decorators', function() {
       checkInstance.prop.should.be.instanceof(InjectableTestClass);
     });
     it('should resolve constructor parameters of built-in types', () => {
+      class injectionValues {
+        @injectable('injStr')
+        public static injectableString: string = 'test';
+        @injectable
+        public static injectableBoolean: boolean = true;
+      }
+
       @component
       class InjectBuiltInTestClass {
         prop: any;

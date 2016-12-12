@@ -33,6 +33,13 @@ export class Injectable {
   public component: boolean;
 
   /**
+   * @type {boolean}
+   * @memberOf Injectable
+   * @description Marks a injectable as explicit value
+   */
+  public isValue: boolean;
+
+  /**
    * @description Count of created instances
    * @type {number}
    * @memberOf Injectable
@@ -72,20 +79,22 @@ export class DiContainer {
     let checkSingleton = getSingleton(name);
     if(checkSingleton) {
       return checkSingleton;
-    } else {
+    }
+    else {
       let currentInjectable: Injectable =  this.injectables.get(name);
+      if(!currentInjectable) {
+        return undefined;
+      }
       let injections: any[] = [];
       for (let parameter of currentInjectable.constParams) {
-        if(_.includes(['Boolean', 'Number', 'String'], parameter.name)) {
-          // if(parameter()) {
-          //   console.log('pushing parameter');
-          // }
-          injections.push(parameter());
+        if(currentInjectable.isValue) {
+          injections.push(parameter);
         }
         else {
           injections.push(this.getInstance(parameter.name));
         }
       }
+      // @todo: properly inject built-in types
       currentInjectable.instanceCount++;
       if (injections.length) {
         return new currentInjectable.injectable(...injections);
@@ -100,10 +109,17 @@ export class DiContainer {
    * 
    * @memberOf DiContainer
    */
-  public setInjectable(name: string, injectable: any) {
+  public setInjectable(name: string, injectable: any, propertyName?: string) {
     let currentInjectable = new Injectable();
-    currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable);
-    currentInjectable.injectable = injectable;
+    if(propertyName) {
+      currentInjectable.constParams = injectable[propertyName];
+      currentInjectable.injectable = injectable[propertyName].constructor;
+      currentInjectable.isValue = true;
+    }
+    else {
+      currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable);
+      currentInjectable.injectable = injectable;
+    }
     this.injectables.set(name, currentInjectable);
   }
 
@@ -144,9 +160,27 @@ export let di: DiContainer = getSingleton(DiContainer);
  * @export
  * @param {*} target
  */
-export function injectable(target: any) {
-  di.setInjectable(target.name, target);
+
+function injectableNameOverride(injectionKey?: string) {
+  return function(target: any, propertyName?: string) {
+    di.setInjectable(injectionKey || propertyName || target.name, target, propertyName);
+  };
 }
+
+function injectableConstructorName(target: any, propertyName?: string) {
+  di.setInjectable(propertyName || target.name, target, propertyName);
+}
+
+export function injectable(...args: any[]) {
+  if(args.length === 1 && typeof args[0] === 'string') {
+    return injectableNameOverride(...args);
+  }
+  else {
+    return injectableConstructorName(...args);
+  }
+
+}
+
 
 /**
  * 

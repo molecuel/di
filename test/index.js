@@ -50,6 +50,18 @@ describe('decorators', function () {
             checkInstance.prop.should.be.instanceof(InjectableTestClass);
         });
         it('should resolve constructor parameters of built-in types', () => {
+            class injectionValues {
+            }
+            injectionValues.injectableString = 'test';
+            injectionValues.injectableBoolean = true;
+            __decorate([
+                dist_1.injectable('injStr'), 
+                __metadata('design:type', String)
+            ], injectionValues, "injectableString", void 0);
+            __decorate([
+                dist_1.injectable, 
+                __metadata('design:type', Boolean)
+            ], injectionValues, "injectableBoolean", void 0);
             let InjectBuiltInTestClass = class InjectBuiltInTestClass {
                 constructor(value) {
                     this.prop = value || false;
