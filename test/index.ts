@@ -9,7 +9,9 @@ should();
 describe('decorators', function() {
   describe('injection', function() {
     @injectable
-    class InjectableTestClass {}
+    class InjectableTestClass {
+      constructor(public value?: any) {}
+    }
     it('should mark a class as injectable', () => {
       let checkInjectable = di.injectables.get(InjectableTestClass.name);
       should.exist(checkInjectable);
@@ -20,6 +22,13 @@ describe('decorators', function() {
       let checkInstance = di.getInstance(InjectableTestClass.name);
       should.exist(checkInstance);
       checkInstance.should.be.instanceof(InjectableTestClass);
+    });
+    it('should generate an instance of any non-singleton class with supplied parameters', () => {
+      let checkInstance = di.getInstance(InjectableTestClass.name, true);
+      should.exist(checkInstance);
+      checkInstance.should.be.instanceof(InjectableTestClass);
+      should.exist(checkInstance.value);
+      checkInstance.value.should.be.type('boolean');
     });
     it('should resolve constructor dependencies of a marked class', () => {
       @component
@@ -34,26 +43,6 @@ describe('decorators', function() {
       checkInstance.should.be.instanceof(InjectTestClass);
       should.exist(checkInstance.prop);
       checkInstance.prop.should.be.instanceof(InjectableTestClass);
-    });
-    it('should resolve constructor parameters of built-in types', () => {
-      class injectionValues {
-        @injectable('injStr')
-        public static injectableString: string = 'test';
-        @injectable
-        public static injectableBoolean: boolean = true;
-      }
-
-      @component
-      class InjectBuiltInTestClass {
-        prop: any;
-        constructor(value: string) {
-          this.prop = value || false;
-        }
-      }
-      let checkInstance = di.getInstance(InjectBuiltInTestClass.name);
-      checkInstance.should.exist;
-      checkInstance.should.be.instanceof(InjectBuiltInTestClass);
-      checkInstance.prop.should.be.type('string');
     });
   }); // category end
 
@@ -71,7 +60,7 @@ describe('decorators', function() {
         constructor(inj: InnerClass) {
           this.inside = inj;
         }
-        someMethod(){
+        someMethod(some?: string) {
           console.log('did something.');
         }
       }
@@ -95,6 +84,11 @@ describe('decorators', function() {
     @injectable
     class Depclass {}
 
+    @injectable
+    class LoopDepclass {
+      constructor(public child: LoopDepclass) {}
+    }
+
     @component
     class DepComponent {
       constructor(mycomp: MyComponent, depclass: Depclass) {
@@ -115,7 +109,8 @@ describe('decorators', function() {
       assert(checkComp.constParams.length === 2);
     });
     it('should prevent loops in deps', function() {
-      assert(false);
+      let checkClass = di.getInstance(LoopDepclass.name);
+      should.not.exist(checkClass);
     });
     it('should load components', function() {
       di.bootstrap();

@@ -17,10 +17,13 @@ should();
 describe('decorators', function () {
     describe('injection', function () {
         let InjectableTestClass = class InjectableTestClass {
+            constructor(value) {
+                this.value = value;
+            }
         };
         InjectableTestClass = __decorate([
             dist_1.injectable, 
-            __metadata('design:paramtypes', [])
+            __metadata('design:paramtypes', [Object])
         ], InjectableTestClass);
         it('should mark a class as injectable', () => {
             let checkInjectable = dist_1.di.injectables.get(InjectableTestClass.name);
@@ -32,6 +35,13 @@ describe('decorators', function () {
             let checkInstance = dist_1.di.getInstance(InjectableTestClass.name);
             should.exist(checkInstance);
             checkInstance.should.be.instanceof(InjectableTestClass);
+        });
+        it('should generate an instance of any non-singleton class with supplied parameters', () => {
+            let checkInstance = dist_1.di.getInstance(InjectableTestClass.name, true);
+            should.exist(checkInstance);
+            checkInstance.should.be.instanceof(InjectableTestClass);
+            should.exist(checkInstance.value);
+            checkInstance.value.should.be.type('boolean');
         });
         it('should resolve constructor dependencies of a marked class', () => {
             let InjectTestClass = class InjectTestClass {
@@ -49,33 +59,6 @@ describe('decorators', function () {
             should.exist(checkInstance.prop);
             checkInstance.prop.should.be.instanceof(InjectableTestClass);
         });
-        it('should resolve constructor parameters of built-in types', () => {
-            class injectionValues {
-            }
-            injectionValues.injectableString = 'test';
-            injectionValues.injectableBoolean = true;
-            __decorate([
-                dist_1.injectable('injStr'), 
-                __metadata('design:type', String)
-            ], injectionValues, "injectableString", void 0);
-            __decorate([
-                dist_1.injectable, 
-                __metadata('design:type', Boolean)
-            ], injectionValues, "injectableBoolean", void 0);
-            let InjectBuiltInTestClass = class InjectBuiltInTestClass {
-                constructor(value) {
-                    this.prop = value || false;
-                }
-            };
-            InjectBuiltInTestClass = __decorate([
-                dist_1.component, 
-                __metadata('design:paramtypes', [String])
-            ], InjectBuiltInTestClass);
-            let checkInstance = dist_1.di.getInstance(InjectBuiltInTestClass.name);
-            checkInstance.should.exist;
-            checkInstance.should.be.instanceof(InjectBuiltInTestClass);
-            checkInstance.prop.should.be.type('string');
-        });
     });
     describe('singleton', function () {
         it('should mark a class as singleton and only ever return one instance', function () {
@@ -91,7 +74,7 @@ describe('decorators', function () {
                 constructor(inj) {
                     this.inside = inj;
                 }
-                someMethod() {
+                someMethod(some) {
                     console.log('did something.');
                 }
             };
@@ -125,6 +108,15 @@ describe('decorators', function () {
             dist_1.injectable, 
             __metadata('design:paramtypes', [])
         ], Depclass);
+        let LoopDepclass = class LoopDepclass {
+            constructor(child) {
+                this.child = child;
+            }
+        };
+        LoopDepclass = __decorate([
+            dist_1.injectable, 
+            __metadata('design:paramtypes', [LoopDepclass])
+        ], LoopDepclass);
         let DepComponent = class DepComponent {
             constructor(mycomp, depclass) {
             }
@@ -146,7 +138,8 @@ describe('decorators', function () {
             assert(checkComp.constParams.length === 2);
         });
         it('should prevent loops in deps', function () {
-            assert(false);
+            let checkClass = dist_1.di.getInstance(LoopDepclass.name);
+            should.not.exist(checkClass);
         });
         it('should load components', function () {
             dist_1.di.bootstrap();

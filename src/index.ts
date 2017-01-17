@@ -47,7 +47,6 @@ export class Injectable {
   public instanceCount: number = 0;
 }
 
-
 /**
  * 
  * @description Di Container class needed to handle DI function and return instances
@@ -67,6 +66,7 @@ export class DiContainer {
    */
   public constructor() {
     this.injectables = new Map();
+    // this.injectionOverrides = [];
   }
   /**
    * @description Returns a initialized instance of a injectable object or returns a singleton
@@ -75,37 +75,42 @@ export class DiContainer {
    * 
    * @memberOf DiContainer
    */
-  public getInstance(name: string|any) {
+  public getInstance(name: string|any, ...params: any[]) {
     let checkSingleton = getSingleton(name);
     if(checkSingleton) {
       return checkSingleton;
     }
     else {
       let currentInjectable: Injectable =  this.injectables.get(name);
-      if(!currentInjectable) {
-        return undefined;
+      if (params && params.length && currentInjectable) {
+        return new currentInjectable.injectable(...params);
       }
-      let injections: any[] = [];
-      for (let parameter of currentInjectable.constParams) {
-        if(currentInjectable.isValue) {
-          injections.push(parameter);
+      else {
+        if(!currentInjectable || this.checkDependencyLoop(name)) {
+          return undefined;
         }
-        else {
-          injections.push(this.getInstance(parameter.name));
+        let injections: any[] = [];
+        for (let parameter of currentInjectable.constParams) {
+          if(currentInjectable.isValue) {
+            injections.push(parameter);
+          }
+          else {
+            injections.push(this.getInstance(parameter.name));
+          }
         }
+        // @todo: properly inject built-in types
+        currentInjectable.instanceCount++;
+        if (injections.length) {
+          return new currentInjectable.injectable(...injections);
+        }
+        return new currentInjectable.injectable();
       }
-      // @todo: properly inject built-in types
-      currentInjectable.instanceCount++;
-      if (injections.length) {
-        return new currentInjectable.injectable(...injections);
-      }
-      return new currentInjectable.injectable();
     }
   }
+
   /**
    * @description Stores a injectable
    * @param {string} name
-   * @param {*} injectable
    * 
    * @memberOf DiContainer
    */
@@ -121,6 +126,34 @@ export class DiContainer {
       currentInjectable.injectable = injectable;
     }
     this.injectables.set(name, currentInjectable);
+  }
+
+  /**
+   * @description Check an Injectable to have no looping deps
+   * @param {string} name
+   * @param {*} injectable
+   * 
+   * @memberOf DiContainer
+   */
+  protected checkDependencyLoop(target: string, parents: Injectable[] = []): boolean {
+    let check = this.injectables.get(target);
+    if (!check || !check.constParams || !check.constParams.length) {
+      return false;
+    }
+    else if (_.includes(parents, check.injectable)) {
+      return true;
+    }
+    else if (check.constParams && check.constParams.length) {
+      parents.push(check.injectable);
+      for (let param of check.constParams) {
+        if (this.checkDependencyLoop(param.name || param, parents)) {
+          return true;
+        }
+      }
+    }
+    else {
+      return false;
+    }
   }
 
   /**
@@ -148,18 +181,17 @@ export class DiContainer {
       // init components
       for(let [key, component] of this.injectables) {
         if(component.component) {
-          this.getInstance(key);
+          try {
+            this.getInstance(key);
+          }
+          catch (err) {
+
+          }
         }
       }
   }
 }
 export let di: DiContainer = getSingleton(DiContainer);
-
-/**
- * @decorator
- * @export
- * @param {*} target
- */
 
 function injectableNameOverride(injectionKey?: string) {
   return function(target: any, propertyName?: string) {
@@ -171,6 +203,11 @@ function injectableConstructorName(target: any, propertyName?: string) {
   di.setInjectable(propertyName || target.name, target, propertyName);
 }
 
+/**
+ * @decorator
+ * @export
+ * @param {*} target
+ */
 export function injectable(...args: any[]) {
   if(args.length === 1 && typeof args[0] === 'string') {
     return injectableNameOverride(...args);
@@ -178,9 +215,7 @@ export function injectable(...args: any[]) {
   else {
     return injectableConstructorName(...args);
   }
-
 }
-
 
 /**
  * 
@@ -234,6 +269,12 @@ export function singleton(target: any): void {
   Object.freeze(singleton);
 }
 
+/**
+ * 
+ * @decorator
+ * @export
+ * @param {*} target
+ */
 export function component(target: any) {
   di.setComponent(target.name, target);
 }
