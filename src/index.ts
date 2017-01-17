@@ -145,7 +145,7 @@ export class DiContainer {
     else if (_.includes(parents, check.injectable)) {
       return true;
     }
-    else if (check.constParams && check.constParams.length) {
+    else if (check && check.constParams) {
       parents.push(check.injectable);
       for (let param of check.constParams) {
         if (this.checkDependencyLoop(param.name || param, parents)) {
@@ -249,8 +249,11 @@ export function singleton(target: any): void {
   if(!global[singletonKey][target.name]) {
     let singletonInstance: Object; // = new target();
     let injections: Object[] = [];
-    for (let parameter of Reflect.getMetadata('design:paramtypes', target)) {
-      injections.push(di.getInstance(parameter.name));
+    let constParams = Reflect.getMetadata('design:paramtypes', target);
+    if (_.isArray(constParams)) {
+      for (let parameter of constParams) {
+        injections.push(di.getInstance(parameter.name));
+      }
     }
     if (injections.length) {
       singletonInstance = new target(...injections);
