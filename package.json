@@ -1,7 +1,7 @@
 {
-  "name": "@molecuel/core",
+  "name": "@molecuel/di",
   "version": "2.0.2",
-  "description": "Core module for molecuel Application framework",
+  "description": "Dependency injection system for Typescript and the molecuel application framework",
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha",
@@ -13,16 +13,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/molecuel/mlcl_core.git"
+    "url": "git+https://github.com/molecuel/di.git"
   },
   "keywords": [],
   "author": "Dominic Böttger <Dominic.Boettger@inspirationlabs.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/molecuel/mlcl_core/issues"
+    "url": "https://github.com/molecuel/di/issues"
   },
   "typings": "dist/index.d.ts",
-  "homepage": "https://github.com/molecuel/mlcl_core#readme",
+  "homepage": "https://github.com/molecuel/di#readme",
   "devDependencies": {
     "@types/gulp": "^3.8.32",
     "@types/gulp-plumber": "^0.0.29",
