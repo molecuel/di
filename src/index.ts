@@ -90,12 +90,14 @@ export class DiContainer {
           return undefined;
         }
         let injections: any[] = [];
-        for (let parameter of currentInjectable.constParams) {
-          if(currentInjectable.isValue) {
-            injections.push(parameter);
-          }
-          else {
-            injections.push(this.getInstance(parameter.name));
+        if (currentInjectable.constParams) {
+          for (let parameter of currentInjectable.constParams) {
+            if(currentInjectable.isValue) {
+              injections.push(parameter);
+            }
+            else {
+              injections.push(this.getInstance(parameter.name));
+            }
           }
         }
         // @todo: properly inject built-in types
@@ -176,21 +178,17 @@ export class DiContainer {
    * @memberOf DiContainer
    */
   public bootstrap() {
-      // @todo check dependencies of @component
+    // @todo check dependencies of @component
 
-      // init components
-      for(let [key, component] of this.injectables) {
-        if(component.component) {
-          try {
-            this.getInstance(key);
-          }
-          catch (err) {
-
-          }
-        }
+    // init components
+    for(let [key, value] of this.injectables) {
+      if(value && value.component) {
+        this.getInstance(key);
       }
+    }
   }
 }
+
 export let di: DiContainer = getSingleton(DiContainer);
 
 function injectableNameOverride(injectionKey?: string) {

@@ -101,7 +101,6 @@ describe('decorators', function() {
       assert(checkComp.component === true);
     });
     it('should calculate dependencies for components', function() {
-
       let checkComp: Injectable = di.injectables.get(DepComponent.name);
       assert(checkComp instanceof Injectable);
       checkComp.component.should.be.equal(true);
@@ -115,7 +114,7 @@ describe('decorators', function() {
     it('should load components', function() {
       di.bootstrap();
       let checkComp = di.injectables.get(DepComponent.name);
-      assert(checkComp.instanceCount > 0);
+      (checkComp.instanceCount).should.be.above(0);
     });
   }); // category end
 }); // test end
