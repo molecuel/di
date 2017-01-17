@@ -12,7 +12,7 @@ describe('decorators', function() {
     class InjectableTestClass {
       constructor(public value?: any) {}
     }
-    
+
     it('should mark a class as injectable', () => {
       let checkInjectable = di.injectables.get(InjectableTestClass.name);
       should.exist(checkInjectable);
