@@ -252,7 +252,7 @@ export function singleton(target: any): void {
     let constParams = Reflect.getMetadata('design:paramtypes', target);
     if (_.isArray(constParams)) {
       for (let parameter of constParams) {
-        injections.push(di.getInstance(parameter.name));
+        injections.push(di.getInstance((<any>parameter).name));
       }
     }
     if (injections.length) {
