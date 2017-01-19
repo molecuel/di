@@ -124,7 +124,7 @@ export class DiContainer {
     //   currentInjectable.isValue = true;
     // }
     // else {
-      currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable);
+      currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable) || [];
       currentInjectable.injectable = injectable;
     // }
     this.injectables.set(name, currentInjectable);
