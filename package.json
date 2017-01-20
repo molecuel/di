@@ -1,6 +1,6 @@
 {
   "name": "@molecuel/di",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Dependency injection system for Typescript and the molecuel application framework",
   "main": "dist/index.js",
   "scripts": {
@@ -57,7 +57,6 @@
     "typescript": "^2.1.0"
   },
   "dependencies": {
-    "@molecuel/di": "^0.0.2",
     "@reactivex/rxjs": "^5.0.0-rc.5",
     "config": "^1.24.0",
     "reflect-metadata": "^0.1.3",
