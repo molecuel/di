@@ -32,13 +32,6 @@ export class Injectable {
    */
   public component: boolean;
 
-  // /**
-  //  * @type {boolean}
-  //  * @memberOf Injectable
-  //  * @description Marks a injectable as explicit value
-  //  */
-  // public isValue: boolean;
-
   /**
    * @description Count of created instances
    * @type {number}
@@ -82,22 +75,18 @@ export class DiContainer {
     }
     else {
       let currentInjectable: Injectable =  this.injectables.get(name);
-      if (params && params.length && currentInjectable) {
-        return new currentInjectable.injectable(...params);
-      }
-      else {
         if(!currentInjectable || this.checkDependencyLoop(name)) {
           return undefined;
         }
         let injections: any[] = [];
         if (currentInjectable.constParams) {
-          for (let parameter of currentInjectable.constParams) {
-            // if(currentInjectable.isValue) {
-            //   injections.push(parameter);
-            // }
-            // else {
-              injections.push(this.getInstance(parameter.name));
-            // }
+          for (let paramIndex = 0; paramIndex < currentInjectable.constParams.length; paramIndex++) {
+            if (params[paramIndex] && paramIndex < currentInjectable.injectable.length) {
+              injections.push(params[paramIndex]);
+            }
+            else {
+              injections.push(this.getInstance(currentInjectable.constParams[paramIndex].name));
+            }
           }
         }
         // @todo: properly inject built-in types
@@ -106,7 +95,7 @@ export class DiContainer {
           return new currentInjectable.injectable(...injections);
         }
         return new currentInjectable.injectable();
-      }
+      // }
     }
   }
 
@@ -118,15 +107,15 @@ export class DiContainer {
    */
   public setInjectable(name: string, injectable: any, propertyName?: string) {
     let currentInjectable = new Injectable();
-    // if(propertyName) {
-    //   currentInjectable.constParams = injectable[propertyName];
-    //   currentInjectable.injectable = injectable[propertyName].constructor;
-    //   currentInjectable.isValue = true;
-    // }
-    // else {
+    let parentClass = Object.getPrototypeOf(injectable);
       currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable) || [];
       currentInjectable.injectable = injectable;
-    // }
+      if (parentClass && this.injectables.get(parentClass.name)) {
+        let parentConstParams = Reflect.getMetadata('design:paramtypes', parentClass);
+        if (parentConstParams && currentInjectable.constParams !== parentConstParams) {
+          currentInjectable.constParams = currentInjectable.constParams.concat(parentConstParams);
+        }
+      }
     this.injectables.set(name, currentInjectable);
   }
 
@@ -164,7 +153,7 @@ export class DiContainer {
    */
   public setComponent(name: string, component: any) {
     let currentComponent = new Injectable();
-    currentComponent.constParams = Reflect.getMetadata('design:paramtypes', component);
+    currentComponent.constParams = Reflect.getMetadata('design:paramtypes', component) || [];
     currentComponent.injectable = component;
     currentComponent.component = true;
     this.injectables.set(name, currentComponent);
