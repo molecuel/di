@@ -84,8 +84,11 @@ export class DiContainer {
             if (params[paramIndex] && paramIndex < currentInjectable.injectable.length) {
               injections.push(params[paramIndex]);
             }
-            else {
+            else if (currentInjectable.constParams[paramIndex] && currentInjectable.constParams[paramIndex].name) {
               injections.push(this.getInstance(currentInjectable.constParams[paramIndex].name));
+            }
+            else {
+              injections.push(undefined);
             }
           }
         }
@@ -108,7 +111,8 @@ export class DiContainer {
   public setInjectable(name: string, injectable: any, propertyName?: string) {
     let currentInjectable = new Injectable();
     let parentClass = Object.getPrototypeOf(injectable);
-      currentInjectable.constParams = Reflect.getMetadata('design:paramtypes', injectable) || [];
+      let meta = Reflect.getMetadata('design:paramtypes', injectable);
+      currentInjectable.constParams = (meta && meta[0]) ? meta : [];
       currentInjectable.injectable = injectable;
       if (parentClass && this.injectables.get(parentClass.name)) {
         let parentConstParams = Reflect.getMetadata('design:paramtypes', parentClass);
@@ -137,8 +141,11 @@ export class DiContainer {
     else if (check && check.constParams) {
       parents.push(check.injectable);
       for (let param of check.constParams) {
-        if (this.checkDependencyLoop(param.name || param, parents)) {
+        if (param && this.checkDependencyLoop(param.name || param, parents)) {
           return true;
+        }
+        else {
+          parents.pop();
         }
       }
     }
