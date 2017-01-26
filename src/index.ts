@@ -81,11 +81,17 @@ export class DiContainer {
         let injections: any[] = [];
         if (currentInjectable.constParams) {
           for (let paramIndex = 0; paramIndex < currentInjectable.constParams.length; paramIndex++) {
-            if (params[paramIndex] && paramIndex < currentInjectable.injectable.length) {
+            let injectableParent = this.injectables.get(Object.getPrototypeOf(currentInjectable.injectable).name);
+            if (params[paramIndex] !== undefined
+            && (paramIndex < currentInjectable.injectable.length
+            || (injectableParent && injectableParent.injectable.length))) {
               injections.push(params[paramIndex]);
             }
             else if (currentInjectable.constParams[paramIndex] && currentInjectable.constParams[paramIndex].name) {
-              injections.push(this.getInstance(currentInjectable.constParams[paramIndex].name));
+
+              let slicedParams = (params[paramIndex] !== undefined && params.slice(paramIndex).length) ? params.slice(paramIndex) : [];
+              injections.push(this.getInstance(currentInjectable.constParams[paramIndex].name,
+              ...slicedParams));
             }
             else {
               injections.push(undefined);
