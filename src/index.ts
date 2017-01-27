@@ -68,7 +68,7 @@ export class DiContainer {
    * 
    * @memberOf DiContainer
    */
-  public getInstance(name: string|any, ...params: any[]) {
+  public getInstance(name: string|any, ...params) {
     let checkSingleton = getSingleton(name);
     if(checkSingleton) {
       return checkSingleton;
