@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/molecuel/mlcl_di.svg?branch=master)](https://travis-ci.org/molecuel/mlcl_di)
+[![Coverage Status](https://coveralls.io/repos/github/molecuel/mlcl_di/badge.svg?branch=master)](https://coveralls.io/github/molecuel/mlcl_di?branch=master)
+
 # Dependency injection for Typescript
 
 mlcl_di is a dependency injection module mainly created for the Molecuel application framework but can be used with any Node project. It's highly inspired by the Spring java framework. The development is focused on simple usage and good code readability.

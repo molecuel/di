@@ -67,15 +67,14 @@ export class Gulpfile {
    */
   @Task('ts::lint')
   tslint() {
-    let lintoptions: any = {
-      emitError: false,
-      sort: true,
-      bell: true
-    }
     return gulp.src(this.config.paths.source)
       .pipe(plumber())
-      .pipe(tslint())
-      .pipe(tslint.report(require('tslint-stylish'), lintoptions));
+      .pipe(tslint({
+            formatter: 'prose'
+      }))
+      .pipe(tslint.report({
+            summarizeFailureOutput: true
+        }));
   }
 
   /**
@@ -83,7 +82,7 @@ export class Gulpfile {
    */
   @Task('ts::compile')
   tscompile(): any {
-    let sourcepaths = ['typings/index.d.ts', 'typings/main.d.ts', 'typings_override/index.d.ts'];
+    let sourcepaths = [];
     sourcepaths.push(this.config.paths.source);
     let tsResult = gulp.src(sourcepaths)
       .pipe(sourcemaps.init())
@@ -92,7 +91,7 @@ export class Gulpfile {
     return merge([
       tsResult.dts.pipe(gulp.dest(this.config.paths.dist)),
       tsResult.js
-        .pipe(sourcemaps.write('.'))
+        .pipe(sourcemaps.write('.', {includeContent: false, sourceRoot: '../src'}))
         .pipe(gulp.dest(this.config.paths.dist))
     ]);
   }
@@ -122,21 +121,19 @@ export class Gulpfile {
   @Task('docs')
   docs() {
     return gulp
-            .src(["./src/*.ts"])
+            .src(['./src/*.ts'])
             .pipe(typedoc({
             // TypeScript options (see typescript docs) 
-            target: "es6",
+            target: 'es6',
             // includeDeclarations: true,
- 
             // Output options (see typedoc docs) 
-            out: "./docs",
-            mode: "file",
+            out: './docs',
+            mode: 'file',
             disableOutputCheck: false,
- 
+            gaID: 'UA-89800241-1',
             // TypeDoc options (see typedoc docs) 
-            name: "tsvalidate",
             ignoreCompilerErrors: true
-        })); 
+        }));
   }
 
   @SequenceTask('deploy') // this special annotation using "run-sequence" module to run returned tasks in sequence
