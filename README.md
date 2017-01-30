@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/molecuel/di.svg?branch=master)](https://travis-ci.org/molecuel/di)
-[![Coverage Status](https://coveralls.io/repos/github/molecuel/mlcl_di/badge.svg?branch=master)](https://coveralls.io/github/molecuel/mlcl_di?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/molecuel/di/badge.svg?branch=master)](https://coveralls.io/github/molecuel/di?branch=master)
 
 # Dependency injection for Typescript
 
