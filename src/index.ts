@@ -41,7 +41,7 @@ export class Injectable {
 }
 
 /**
- * 
+ *
  * @description Di Container class needed to handle DI function and return instances
  * @export
  * @class DiContainer
@@ -65,7 +65,7 @@ export class DiContainer {
    * @description Returns a initialized instance of a injectable object or returns a singleton
    * @param {string} name
    * @returns
-   * 
+   *
    * @memberOf DiContainer
    */
   public getInstance(name: string|any, ...params) {
@@ -111,7 +111,7 @@ export class DiContainer {
   /**
    * @description Stores a injectable
    * @param {string} name
-   * 
+   *
    * @memberOf DiContainer
    */
   public setInjectable(name: string, injectable: any, propertyName?: string) {
@@ -133,7 +133,7 @@ export class DiContainer {
    * @description Check an Injectable to have no looping deps
    * @param {string} name
    * @param {*} injectable
-   * 
+   *
    * @memberOf DiContainer
    */
   protected checkDependencyLoop(target: string, parents: Injectable[] = []): boolean {
@@ -158,10 +158,10 @@ export class DiContainer {
   }
 
   /**
-   * 
+   *
    * @param {string} name
    * @param {*} injectable
-   * 
+   *
    * @memberOf DiContainer
    */
   public setComponent(name: string, component: any) {
@@ -215,7 +215,7 @@ export function injectable(target: any, propertyName?: string) { // function inj
 // }
 
 /**
- * 
+ *
  * @decorator
  * @export
  * @param {*} target
@@ -232,7 +232,7 @@ export function getSingleton(target: any) {
 }
 
 /**
- * 
+ *
  * @decorator
  * @export
  * @param {*} target
@@ -270,7 +270,7 @@ export function singleton(target: any): void {
 }
 
 /**
- * 
+ *
  * @decorator
  * @export
  * @param {*} target
