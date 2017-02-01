@@ -13,6 +13,9 @@ describe('decorators', function() {
       constructor(public value?: any) {}
     }
 
+    @injectable
+    class InnerLoopDepClass {}
+
     it('should mark a class as injectable', () => {
       let checkInjectable = di.injectables.get(InjectableTestClass.name);
       should.exist(checkInjectable);
@@ -32,7 +35,7 @@ describe('decorators', function() {
       checkInstance.value.should.be.type('boolean');
     });
     it('should resolve constructor dependencies of a marked class', () => {
-      @component
+      @injectable
       class InjectTestClass {
         prop: InjectableTestClass;
         constructor(dep: InjectableTestClass) {
@@ -44,6 +47,49 @@ describe('decorators', function() {
       checkInstance.should.be.instanceof(InjectTestClass);
       should.exist(checkInstance.prop);
       checkInstance.prop.should.be.instanceof(InjectableTestClass);
+    });
+    it('should prevent loops in deps', () => {
+      @injectable
+      class OuterLoopDepClass {
+        constructor(public child: InnerLoopDepClass, protected loop: OuterLoopDepClass) {}
+      }
+
+      let checkInstance = di.getInstance(OuterLoopDepClass.name);
+      should.not.exist(checkInstance);
+    });
+    it('should inject inheriting deps', () => {
+      @injectable
+      class Vehicle {
+        constructor(public requiredLicense: string) {}
+      }
+
+      @injectable
+      class Engine {
+        constructor(public horsepower: number) {}
+      }
+
+      @injectable
+      class Car extends Vehicle {
+        constructor(public engine: Engine) {
+          super(...[...arguments].slice(Car.length));
+        }
+      }
+
+      let car = di.getInstance('Car');
+      assert(car);
+      assert(car.engine);
+    });
+    it('should keep order of deps if manual params contain undefined', () => {
+      @injectable
+      class ConstParamOrderTestClass {
+        constructor(public first: any, public second: null, public third: any) {}
+      }
+
+      let testInstance = di.getInstance('ConstParamOrderTestClass', {}, undefined, {});
+      assert(testInstance);
+      assert(testInstance.first);
+      assert(!testInstance.second);
+      assert(testInstance.third);
     });
   }); // category end
 
@@ -85,11 +131,6 @@ describe('decorators', function() {
     @injectable
     class Depclass {}
 
-    @injectable
-    class LoopDepclass {
-      constructor(public child: LoopDepclass) {}
-    }
-
     @component
     class DepComponent {
       constructor(mycomp: MyComponent, depclass: Depclass) {
@@ -107,10 +148,6 @@ describe('decorators', function() {
       checkComp.component.should.be.equal(true);
       should.exist(checkComp.constParams);
       assert(checkComp.constParams.length === 2);
-    });
-    it('should prevent loops in deps', function() {
-      let checkClass = di.getInstance(LoopDepclass.name);
-      should.not.exist(checkClass);
     });
     it('should load components', function() {
       di.bootstrap();

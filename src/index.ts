@@ -138,7 +138,7 @@ export class DiContainer {
    */
   protected checkDependencyLoop(target: string, parents: Injectable[] = []): boolean {
     let check = this.injectables.get(target);
-    if (!check || !check.constParams || !check.constParams.length) {
+    if (!check || !check.constParams) {
       return false;
     }
     else if (_.includes(parents, check.injectable)) {
