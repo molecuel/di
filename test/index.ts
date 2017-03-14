@@ -4,7 +4,7 @@ import should = require('should');
 import assert = require('assert');
 import * as _ from 'lodash';
 import {di, injectable, Injectable, singleton, component} from '../dist';
-should();
+should(undefined);
 
 describe('decorators', function() {
   describe('injection', function() {

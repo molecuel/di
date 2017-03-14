@@ -176,7 +176,7 @@ export class DiContainer {
    * @description Bootstrap DI
    * @memberOf DiContainer
    */
-  public bootstrap() {
+  public bootstrap(...load: any[]) {
     // @todo check dependencies of @component
 
     // init components
