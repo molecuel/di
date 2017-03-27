@@ -1,10 +1,9 @@
 'use strict';
 import 'reflect-metadata';
-import should = require('should');
+import * as should  from 'should';
 import assert = require('assert');
 import * as _ from 'lodash';
 import {di, injectable, Injectable, singleton, component} from '../dist';
-should(undefined);
 
 describe('decorators', function() {
   describe('injection', function() {
@@ -70,8 +69,8 @@ describe('decorators', function() {
 
       @injectable
       class Car extends Vehicle {
-        constructor(public engine: Engine) {
-          super(...[...arguments].slice(Car.length));
+        constructor(public engine: Engine, rL?: string) {
+          super(rL);
         }
       }
 

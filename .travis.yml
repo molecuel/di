@@ -1,8 +1,16 @@
 language: node_js
 node_js:
-  - "6"
-  - "7"
+- '6'
+- '7'
 before_script:
-  - gulp build
+- npm run build
 after_success:
-  - npm run coveralls
+- npm run coveralls
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: info@molecuel.org
+  api_key:
+    secure: oBGdjKAVxyaSiagDnM9/dz/hdCXBIi4A8L+w0On2whTVIkU/m211ud/qt/toPznH0NqE+yfH6K2C4lXgJ5R3zXHXs8+smWtcQNCjLDaYh3ZlHFpM/FAcxaxlDwwvy76u1JRFpWY7rbB0Bz/BAaGMbF9y/ZMbtG2gyKZATcH6WtA4ZpXIt5Qw+BKzJ+va1iMqOYTpZF0zX96IlvOS3BkDPQuJTESa66/xox7K4kYeKUjEujByJ9puwuFvbJ3mco7vCSaiqNtwPs4Eqmo8+mrD3mj417AEujmaZrTCfira0JuaPx15WuW0RVM5Quv9epLDlL6nFiPbrX69GS+7vHUKbGCkJto+OW/izBGnRhmkGYJP9JyBJJbLjypBf7yNNwvJD6aq4/RJRA1KjuHGW/nfTCJpiD6R6xWIeyQ1qFRUsqmExGdox85ohFW0iKsAecqY4Z//1innDLUAhVdW2vfYDLpT6OrQewIbk7289h4UYYPftfA1tYg3Y28wqLUKjivTdSDbXleebMILio+GY8cMA1bV35WjMKF1EcF6I17sSZwm3FN2Gs6GKLzWWZEGutoD3v+mX+NLryWk7vaBGJ9Rf7T9l97yaGGqoY/LzASg8gNpex2hlxgfkpB4eajqQiTBVwS35NDMqp1A3OeFzvZAWGm1uGds0s3tYxztA34iETE=
+  on:
+    repo: molecuel/di
