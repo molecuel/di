@@ -1,42 +1,44 @@
-'use strict';
-import 'reflect-metadata';
-import * as should  from 'should';
-import assert = require('assert');
-import * as _ from 'lodash';
-import {di, injectable, Injectable, singleton, component} from '../dist';
+"use strict";
+import "reflect-metadata";
+import * as should  from "should";
+import assert = require("assert");
+import * as _ from "lodash";
+import {component, di, injectable, Injectable, singleton} from "../dist";
 
-describe('decorators', function() {
-  describe('injection', function() {
+describe("decorators", () => {
+  describe("injection", () => {
     @injectable
     class InjectableTestClass {
       constructor(public value?: any) {}
     }
 
+    // tslint:disable-next-line:max-classes-per-file
     @injectable
     class InnerLoopDepClass {}
 
-    it('should mark a class as injectable', () => {
+    it("should mark a class as injectable", () => {
       let checkInjectable = di.injectables.get(InjectableTestClass.name);
       should.exist(checkInjectable);
       checkInjectable.should.be.instanceof(Injectable);
       assert(_.isObject(checkInjectable.injectable));
     });
-    it('should generate an instance of a marked class', () => {
+    it("should generate an instance of a marked class", () => {
       let checkInstance = di.getInstance(InjectableTestClass.name);
       should.exist(checkInstance);
       checkInstance.should.be.instanceof(InjectableTestClass);
     });
-    it('should generate an instance of any non-singleton class with supplied parameters', () => {
+    it("should generate an instance of any non-singleton class with supplied parameters", () => {
       let checkInstance = di.getInstance(InjectableTestClass.name, true);
       should.exist(checkInstance);
       checkInstance.should.be.instanceof(InjectableTestClass);
       should.exist(checkInstance.value);
-      checkInstance.value.should.be.type('boolean');
+      checkInstance.value.should.be.type("boolean");
     });
-    it('should resolve constructor dependencies of a marked class', () => {
+    it("should resolve constructor dependencies of a marked class", () => {
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class InjectTestClass {
-        prop: InjectableTestClass;
+        public prop: InjectableTestClass;
         constructor(dep: InjectableTestClass) {
           this.prop = dep;
         }
@@ -47,7 +49,8 @@ describe('decorators', function() {
       should.exist(checkInstance.prop);
       checkInstance.prop.should.be.instanceof(InjectableTestClass);
     });
-    it('should prevent loops in deps', () => {
+    it("should prevent loops in deps", () => {
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class OuterLoopDepClass {
         constructor(public child: InnerLoopDepClass, protected loop: OuterLoopDepClass) {}
@@ -56,17 +59,20 @@ describe('decorators', function() {
       let checkInstance = di.getInstance(OuterLoopDepClass.name);
       should.not.exist(checkInstance);
     });
-    it('should inject inheriting deps', () => {
+    it("should inject inheriting deps", () => {
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class Vehicle {
         constructor(public requiredLicense: string) {}
       }
 
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class Engine {
         constructor(public horsepower: number) {}
       }
 
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class Car extends Vehicle {
         constructor(public engine: Engine, rL?: string) {
@@ -74,17 +80,18 @@ describe('decorators', function() {
         }
       }
 
-      let car = di.getInstance('Car');
+      let car = di.getInstance("Car");
       assert(car);
       assert(car.engine);
     });
-    it('should keep order of deps if manual params contain undefined', () => {
+    it("should keep order of deps if manual params contain undefined", () => {
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class ConstParamOrderTestClass {
         constructor(public first: any, public second: null, public third: any) {}
       }
 
-      let testInstance = di.getInstance('ConstParamOrderTestClass', {}, undefined, {});
+      let testInstance = di.getInstance("ConstParamOrderTestClass", {}, undefined, {});
       assert(testInstance);
       assert(testInstance.first);
       assert(!testInstance.second);
@@ -92,28 +99,27 @@ describe('decorators', function() {
     });
   }); // category end
 
-  describe('singleton', function() {
-    it('should mark a class as singleton and only ever return one instance', function() {
+  describe("singleton", () => {
+    it("should mark a class as singleton and only ever return one instance", () => {
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
-      class InnerClass {
-        constructor() {
+      class InnerClass { }
 
-        }
-      }
+      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class SomeClass {
-        inside: InnerClass;
+        public inside: InnerClass;
         constructor(inj: InnerClass) {
           this.inside = inj;
         }
-        someMethod(some?: string) {
-          console.log('did something.');
-        }
+        // tslint:disable-next-line:no-empty
+        public someMethod(some?: string) { }
       }
 
+      // tslint:disable-next-line:max-classes-per-file
       @singleton
       class MySingletonClass {
-        prop: any;
+        public prop: any;
         constructor(inj: SomeClass) {
           this.prop = inj || false;
         }
@@ -123,32 +129,35 @@ describe('decorators', function() {
     });
   }); // category end
 
-  describe('component', function() {
+  describe("component", () => {
+    // tslint:disable-next-line:max-classes-per-file
     @component
     class MyComponent {}
 
+    // tslint:disable-next-line:max-classes-per-file
     @injectable
     class Depclass {}
 
+    // tslint:disable-next-line:max-classes-per-file
     @component
     class DepComponent {
-      constructor(mycomp: MyComponent, depclass: Depclass) {
-      }
+      // tslint:disable-next-line:no-empty
+      constructor(mycomp: MyComponent, depclass: Depclass) { }
     }
 
-    it('should mark as component', function() {
-      let checkComp: Injectable = di.injectables.get('MyComponent');
+    it("should mark as component", () => {
+      let checkComp: Injectable = di.injectables.get("MyComponent");
       assert(checkComp instanceof Injectable);
       assert(checkComp.component === true);
     });
-    it('should calculate dependencies for components', function() {
+    it("should calculate dependencies for components", () => {
       let checkComp: Injectable = di.injectables.get(DepComponent.name);
       assert(checkComp instanceof Injectable);
       checkComp.component.should.be.equal(true);
       should.exist(checkComp.constParams);
       assert(checkComp.constParams.length === 2);
     });
-    it('should load components', function() {
+    it("should load components", () => {
       di.bootstrap();
       let checkComp = di.injectables.get(DepComponent.name);
       (checkComp.instanceCount).should.be.above(0);
