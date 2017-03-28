@@ -12,7 +12,7 @@
     "build_test": "npm run tslint_test && npm run ts_test",
     "build_all": "npm run build && npm run build_test",
     "mocha": "./node_modules/.bin/mocha",
-    "test": "npm run ts_test && npm run mocha",
+    "test": "npm run build_test && npm run mocha",
     "cover": "istanbul cover ./node_modules/mocha/bin/_mocha && npm run remap && npm run remaphtml && npm run remaplcov",
     "remap": "./node_modules/.bin/remap-istanbul -i coverage/coverage.json -o coverage/coverage-remap.json",
     "remaphtml": "./node_modules/.bin/remap-istanbul -i coverage/coverage.json -o coverage/html -t html",
