@@ -31,8 +31,8 @@ export function getSingleton(target: any) {
 export function singleton(target: any): void {
   // check if the global object has this symbol
   // add it if it does not have the symbol, yet
-  let globalSymbols = Object.getOwnPropertySymbols(global);
-  let hasSingletonKey = (globalSymbols.indexOf(singletonKey) > -1);
+  const globalSymbols = Object.getOwnPropertySymbols(global);
+  const hasSingletonKey = (globalSymbols.indexOf(singletonKey) > -1);
 
   if (!hasSingletonKey) {
     if (!_.isObject(global[singletonKey])) {
@@ -40,13 +40,13 @@ export function singleton(target: any): void {
     }
   }
   if (!global[singletonKey][target.name]) {
-    let singletonInstance: Object; // = new target();
-    let injections: Object[] = [];
-    let constParams = Reflect.getMetadata("design:paramtypes", target);
+    let singletonInstance: object; // = new target();
+    const injections: object[] = [];
+    const constParams = Reflect.getMetadata("design:paramtypes", target);
     if (_.isArray(constParams)) {
-      for (let parameter of constParams) {
-        let di: DiContainer = getSingleton(DiContainer);
-        injections.push(di.getInstance((<any> parameter).name));
+      for (const parameter of constParams) {
+        const di: DiContainer = getSingleton(DiContainer);
+        injections.push(di.getInstance((parameter as any).name));
       }
     }
     if (injections.length) {
@@ -89,25 +89,25 @@ export class DiContainer {
    * @memberOf DiContainer
    */
   public getInstance(name: string|any, ...params) {
-    let checkSingleton = getSingleton(name);
+    const checkSingleton = getSingleton(name);
     if (checkSingleton) {
       return checkSingleton;
     } else {
-      let currentInjectable: Injectable =  this.injectables.get(name);
+      const currentInjectable: Injectable =  this.injectables.get(name);
       if (!currentInjectable || this.checkDependencyLoop(name)) {
           return undefined;
         }
-      let injections: any[] = [];
+      const injections: any[] = [];
       if (currentInjectable.constParams) {
           for (let paramIndex = 0; paramIndex < currentInjectable.constParams.length; paramIndex++) {
-            let injectableParent = this.injectables.get(Object.getPrototypeOf(currentInjectable.injectable).name);
+            const injectableParent = this.injectables.get(Object.getPrototypeOf(currentInjectable.injectable).name);
             if (params[paramIndex] !== undefined
             && (paramIndex < currentInjectable.injectable.length
             || (injectableParent && injectableParent.injectable.length))) {
               injections.push(params[paramIndex]);
             } else if (currentInjectable.constParams[paramIndex] && currentInjectable.constParams[paramIndex].name) {
 
-              let slicedParams = (params[paramIndex] !== undefined
+              const slicedParams = (params[paramIndex] !== undefined
                 && params.slice(paramIndex).length) ? params.slice(paramIndex) : [];
               injections.push(this.getInstance(currentInjectable.constParams[paramIndex].name,
               ...slicedParams));
@@ -133,13 +133,13 @@ export class DiContainer {
    * @memberOf DiContainer
    */
   public setInjectable(name: string, injectable: any, propertyName?: string) {
-    let currentInjectable = new Injectable();
-    let parentClass = Object.getPrototypeOf(injectable);
-    let meta = Reflect.getMetadata("design:paramtypes", injectable);
+    const currentInjectable = new Injectable();
+    const parentClass = Object.getPrototypeOf(injectable);
+    const meta = Reflect.getMetadata("design:paramtypes", injectable);
     currentInjectable.constParams = (meta && meta[0]) ? meta : [];
     currentInjectable.injectable = injectable;
     if (parentClass && this.injectables.get(parentClass.name)) {
-        let parentConstParams = Reflect.getMetadata("design:paramtypes", parentClass);
+        const parentConstParams = Reflect.getMetadata("design:paramtypes", parentClass);
         if (parentConstParams && currentInjectable.constParams !== parentConstParams) {
           currentInjectable.constParams = currentInjectable.constParams.concat(parentConstParams);
         }
@@ -155,7 +155,7 @@ export class DiContainer {
    * @memberOf DiContainer
    */
   public setComponent(name: string, component: any) {
-    let currentComponent = new Injectable();
+    const currentComponent = new Injectable();
     currentComponent.constParams = Reflect.getMetadata("design:paramtypes", component) || [];
     currentComponent.injectable = component;
     currentComponent.component = true;
@@ -170,7 +170,7 @@ export class DiContainer {
     // @todo check dependencies of @component
 
     // init components
-    for (let [key, value] of this.injectables) {
+    for (const [key, value] of this.injectables) {
       if (value && value.component) {
         this.getInstance(key);
       }
@@ -185,14 +185,14 @@ export class DiContainer {
    * @memberOf DiContainer
    */
   protected checkDependencyLoop(target: string, parents: Injectable[] = []): boolean {
-    let check = this.injectables.get(target);
+    const check = this.injectables.get(target);
     if (!check || !check.constParams) {
       return false;
     } else if (_.includes(parents, check.injectable)) {
       return true;
     } else if (check && check.constParams) {
       parents.push(check.injectable);
-      for (let param of check.constParams) {
+      for (const param of check.constParams) {
         if (param && this.checkDependencyLoop(param.name || param, parents)) {
           return true;
         } else {
