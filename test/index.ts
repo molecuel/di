@@ -1,8 +1,7 @@
-"use strict";
-import "reflect-metadata";
-import * as should  from "should";
-import assert = require("assert");
+import * as assert from "assert";
 import * as _ from "lodash";
+import "reflect-metadata";
+import * as should from "should";
 import {component, di, injectable, Injectable, singleton} from "../dist";
 
 describe("decorators", () => {
@@ -17,18 +16,18 @@ describe("decorators", () => {
     class InnerLoopDepClass {}
 
     it("should mark a class as injectable", () => {
-      let checkInjectable = di.injectables.get(InjectableTestClass.name);
+      const checkInjectable = di.injectables.get(InjectableTestClass.name);
       should.exist(checkInjectable);
       checkInjectable.should.be.instanceof(Injectable);
       assert(_.isObject(checkInjectable.injectable));
     });
     it("should generate an instance of a marked class", () => {
-      let checkInstance = di.getInstance(InjectableTestClass.name);
+      const checkInstance = di.getInstance(InjectableTestClass.name);
       should.exist(checkInstance);
       checkInstance.should.be.instanceof(InjectableTestClass);
     });
     it("should generate an instance of any non-singleton class with supplied parameters", () => {
-      let checkInstance = di.getInstance(InjectableTestClass.name, true);
+      const checkInstance = di.getInstance(InjectableTestClass.name, true);
       should.exist(checkInstance);
       checkInstance.should.be.instanceof(InjectableTestClass);
       should.exist(checkInstance.value);
@@ -43,7 +42,7 @@ describe("decorators", () => {
           this.prop = dep;
         }
       }
-      let checkInstance: InjectTestClass = di.getInstance(InjectTestClass.name);
+      const checkInstance: InjectTestClass = di.getInstance(InjectTestClass.name);
       should.exist(checkInstance);
       checkInstance.should.be.instanceof(InjectTestClass);
       should.exist(checkInstance.prop);
@@ -56,7 +55,7 @@ describe("decorators", () => {
         constructor(public child: InnerLoopDepClass, protected loop: OuterLoopDepClass) {}
       }
 
-      let checkInstance = di.getInstance(OuterLoopDepClass.name);
+      const checkInstance = di.getInstance(OuterLoopDepClass.name);
       should.not.exist(checkInstance);
     });
     it("should inject inheriting deps", () => {
@@ -80,7 +79,7 @@ describe("decorators", () => {
         }
       }
 
-      let car = di.getInstance("Car");
+      const car = di.getInstance("Car");
       assert(car);
       assert(car.engine);
     });
@@ -91,7 +90,7 @@ describe("decorators", () => {
         constructor(public first: any, public second: null, public third: any) {}
       }
 
-      let testInstance = di.getInstance("ConstParamOrderTestClass", {}, undefined, {});
+      const testInstance = di.getInstance("ConstParamOrderTestClass", {}, undefined, {});
       assert(testInstance);
       assert(testInstance.first);
       assert(!testInstance.second);
@@ -124,7 +123,7 @@ describe("decorators", () => {
           this.prop = inj || false;
         }
       }
-      let createdSingleton = di.getInstance(MySingletonClass.name);
+      const createdSingleton = di.getInstance(MySingletonClass.name);
       createdSingleton.should.equal(di.getInstance(MySingletonClass.name));
     });
   }); // category end
@@ -146,12 +145,12 @@ describe("decorators", () => {
     }
 
     it("should mark as component", () => {
-      let checkComp: Injectable = di.injectables.get("MyComponent");
+      const checkComp: Injectable = di.injectables.get("MyComponent");
       assert(checkComp instanceof Injectable);
       assert(checkComp.component === true);
     });
     it("should calculate dependencies for components", () => {
-      let checkComp: Injectable = di.injectables.get(DepComponent.name);
+      const checkComp: Injectable = di.injectables.get(DepComponent.name);
       assert(checkComp instanceof Injectable);
       checkComp.component.should.be.equal(true);
       should.exist(checkComp.constParams);
@@ -159,7 +158,7 @@ describe("decorators", () => {
     });
     it("should load components", () => {
       di.bootstrap();
-      let checkComp = di.injectables.get(DepComponent.name);
+      const checkComp = di.injectables.get(DepComponent.name);
       (checkComp.instanceCount).should.be.above(0);
     });
   }); // category end
