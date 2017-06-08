@@ -78,7 +78,7 @@ export class DiContainer {
    * @type {Map<string, object>}
    * @memberOf DiContainer
    */
-  public stores: Map<string, object>;
+  public stores: Map<string, Map<any, any>>;
 
   /**
    * Creates an instance of DiContainer.
@@ -87,6 +87,7 @@ export class DiContainer {
   public constructor() {
     this.injectables = new Map();
     this.stores = new Map();
+    this.stores.set("injectables", this.injectables);
     // this.injectionOverrides = [];
   }
 

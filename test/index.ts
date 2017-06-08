@@ -2,18 +2,20 @@ import * as assert from "assert";
 import * as _ from "lodash";
 import "reflect-metadata";
 import * as should from "should";
-import {component, di, injectable, Injectable, singleton} from "../dist";
+import { component, di, injectable, Injectable, singleton } from "../dist";
+
+// tslint:disable:max-classes-per-file
+// tslint:disable:no-empty
 
 describe("decorators", () => {
   describe("injection", () => {
     @injectable
     class InjectableTestClass {
-      constructor(public value?: any) {}
+      constructor(public value?: any) { }
     }
 
-    // tslint:disable-next-line:max-classes-per-file
     @injectable
-    class InnerLoopDepClass {}
+    class InnerLoopDepClass { }
 
     it("should mark a class as injectable", () => {
       const checkInjectable = di.injectables.get(InjectableTestClass.name);
@@ -34,7 +36,6 @@ describe("decorators", () => {
       checkInstance.value.should.be.type("boolean");
     });
     it("should resolve constructor dependencies of a marked class", () => {
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class InjectTestClass {
         public prop: InjectableTestClass;
@@ -49,29 +50,25 @@ describe("decorators", () => {
       checkInstance.prop.should.be.instanceof(InjectableTestClass);
     });
     it("should prevent loops in deps", () => {
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class OuterLoopDepClass {
-        constructor(public child: InnerLoopDepClass, protected loop: OuterLoopDepClass) {}
+        constructor(public child: InnerLoopDepClass, protected loop: OuterLoopDepClass) { }
       }
 
       const checkInstance = di.getInstance(OuterLoopDepClass.name);
       should.not.exist(checkInstance);
     });
     it("should inject inheriting deps", () => {
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class Vehicle {
-        constructor(public requiredLicense: string) {}
+        constructor(public requiredLicense: string) { }
       }
 
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class Engine {
-        constructor(public horsepower: number) {}
+        constructor(public horsepower: number) { }
       }
 
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class Car extends Vehicle {
         constructor(public engine: Engine, rL?: string) {
@@ -84,10 +81,9 @@ describe("decorators", () => {
       assert(car.engine);
     });
     it("should keep order of deps if manual params contain undefined", () => {
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class ConstParamOrderTestClass {
-        constructor(public first: any, public second: null, public third: any) {}
+        constructor(public first: any, public second: null, public third: any) { }
       }
 
       const testInstance = di.getInstance("ConstParamOrderTestClass", {}, undefined, {});
@@ -100,27 +96,33 @@ describe("decorators", () => {
       const testStore = di.getStore("test");
       should.exist(testStore);
       testStore.should.be.instanceOf(Map);
+      should.exist(testStore.keys());
+    });
+    it("should have a reference to injectables as store", () => {
+      const injStore = di.getStore("injectables");
+      should.exist(injStore);
+      injStore.should.be.instanceOf(Map);
+      const tmpLen = injStore.size;
+      @injectable
+      class EmptyInjectableTestClass { }
+      assert(injStore.size === tmpLen + 1);
     });
   }); // category end
 
   describe("singleton", () => {
     it("should mark a class as singleton and only ever return one instance", () => {
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class InnerClass { }
 
-      // tslint:disable-next-line:max-classes-per-file
       @injectable
       class SomeClass {
         public inside: InnerClass;
         constructor(inj: InnerClass) {
           this.inside = inj;
         }
-        // tslint:disable-next-line:no-empty
         public someMethod(some?: string) { }
       }
 
-      // tslint:disable-next-line:max-classes-per-file
       @singleton
       class MySingletonClass {
         public prop: any;
@@ -134,18 +136,14 @@ describe("decorators", () => {
   }); // category end
 
   describe("component", () => {
-    // tslint:disable-next-line:max-classes-per-file
     @component
-    class MyComponent {}
+    class MyComponent { }
 
-    // tslint:disable-next-line:max-classes-per-file
     @injectable
-    class Depclass {}
+    class Depclass { }
 
-    // tslint:disable-next-line:max-classes-per-file
     @component
     class DepComponent {
-      // tslint:disable-next-line:no-empty
       constructor(mycomp: MyComponent, depclass: Depclass) { }
     }
 
