@@ -96,6 +96,11 @@ describe("decorators", () => {
       assert(!testInstance.second);
       assert(testInstance.third);
     });
+    it("should create a new store if not yet available and return it", () => {
+      const testStore = di.getStore("test");
+      should.exist(testStore);
+      testStore.should.be.instanceOf(Map);
+    });
   }); // category end
 
   describe("singleton", () => {

@@ -73,14 +73,36 @@ export class DiContainer {
    * @memberOf DiContainer
    */
   public injectables: Map<string, Injectable>;
+
+  /**
+   * @type {Map<string, object>}
+   * @memberOf DiContainer
+   */
+  public stores: Map<string, object>;
+
   /**
    * Creates an instance of DiContainer.
    * @memberOf DiContainer
    */
   public constructor() {
     this.injectables = new Map();
+    this.stores = new Map();
     // this.injectionOverrides = [];
   }
+
+  /**
+   * @description Stores a injectable
+   * @param {string} name
+   *
+   * @memberOf DiContainer
+   */
+  public getStore(name: string) {
+    if (!this.stores.has(name)) {
+      this.stores.set(name, new Map());
+    }
+    return this.stores.get(name);
+  }
+
   /**
    * @description Returns a initialized instance of a injectable object or returns a singleton
    * @param {string} name
