@@ -1,6 +1,6 @@
 {
   "name": "@molecuel/di",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Dependency injection system for Typescript and the molecuel application framework",
   "main": "dist/index.js",
   "scripts": {
