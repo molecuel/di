@@ -62,7 +62,7 @@ di.bootstrap();
 The current API Documentation can be found on <https://molecuel.github.io/mlcl_di/>
 
 ## Website
-<http://molecuel.org/module/di/>
+<http://molecuel.org/en/module/di/>
 
 ## Build System
 
