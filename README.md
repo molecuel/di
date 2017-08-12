@@ -1,4 +1,4 @@
-# @molecuel/di - <http://molecuel.org/module/di/>
+# @molecuel/di
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage percentage][coveralls-image]][coveralls-url]
 
 ## Dependency injection for Typescript
@@ -60,6 +60,9 @@ di.bootstrap();
 ## API Documentation
 
 The current API Documentation can be found on <https://molecuel.github.io/mlcl_di/>
+
+## Website
+<http://molecuel.org/module/di/>
 
 ## Build System
 
