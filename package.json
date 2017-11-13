@@ -1,6 +1,6 @@
 {
   "name": "@molecuel/di",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Dependency injection system for Typescript and the molecuel application framework",
   "main": "dist/index.js",
   "scripts": {
@@ -35,7 +35,7 @@
   },
   "typings": "dist/index.d.ts",
   "homepage": "https://github.com/molecuel/di#readme",
- "devDependencies": {
+  "devDependencies": {
     "@types/mocha": "^2.2.36",
     "@types/when": "^2.4.28",
     "assert": ">=0.0.1",

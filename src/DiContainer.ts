@@ -5,6 +5,19 @@ import {Injectable} from "./Injectable";
 // create a unique, GLOBAL symbol name
 const singletonKey = Symbol.for("mlcl.di.singletons");
 
+function getGlobal(): NodeJS.Global | Window {
+  if (typeof window === "undefined") {
+    return global;
+  }
+  return window;
+}
+
+let root = getGlobal();
+
+if (!global && window) {
+  root = window;
+}
+
 /**
  *
  * @decorator
@@ -15,10 +28,10 @@ const singletonKey = Symbol.for("mlcl.di.singletons");
 export function getSingleton(target: any) {
   // check if it"s an object to get the name from the prototype
   if (_.isObject(target)) {
-    return global[singletonKey][target.name];
+    return root[singletonKey][target.name];
   } else if (_.isString(target)) {
     // if it"s a string return singleton by string
-    return global[singletonKey][target];
+    return root[singletonKey][target];
   }
 }
 
@@ -31,15 +44,15 @@ export function getSingleton(target: any) {
 export function singleton(target: any): void {
   // check if the global object has this symbol
   // add it if it does not have the symbol, yet
-  const globalSymbols = Object.getOwnPropertySymbols(global);
+  const globalSymbols = Object.getOwnPropertySymbols(root);
   const hasSingletonKey = (globalSymbols.indexOf(singletonKey) > -1);
 
   if (!hasSingletonKey) {
-    if (!_.isObject(global[singletonKey])) {
-      global[singletonKey] = {};
+    if (!_.isObject(root[singletonKey])) {
+      root[singletonKey] = {};
     }
   }
-  if (!global[singletonKey][target.name]) {
+  if (!root[singletonKey][target.name]) {
     let singletonInstance: object; // = new target();
     const injections: object[] = [];
     const constParams = Reflect.getMetadata("design:paramtypes", target);
@@ -54,7 +67,7 @@ export function singleton(target: any): void {
     } else {
       singletonInstance = new target();
     }
-    global[singletonKey][target.name] = singletonInstance;
+    root[singletonKey][target.name] = singletonInstance;
   }
   // ensure the API is never changed
   Object.freeze(singleton);
